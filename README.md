@@ -2,6 +2,8 @@
 
 Uses live IL2CPP runtime reflection to dump class offsets, method RVAs, and typeinfo addresses.
 
+-- Need to create C:\Dumps before running it as it does not create the file for you. 
+
 ## How it works
 
 **Injection** – The DLL gets injected into Rust. Nothing fancy; you're supposed to have EAC turned off.
