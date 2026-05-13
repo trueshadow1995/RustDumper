@@ -35,3 +35,5 @@ Typeinfo RVAs are discovered purely at runtime — The `.data` section scan find
 ## Credits
 
 Thank you to Serotonin devs, whomever made it.
+
+My original git got so messed up i made a new one, sorry to the people that forked
