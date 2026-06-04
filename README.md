@@ -37,5 +37,6 @@ Typeinfo RVAs are discovered purely at runtime — The `.data` section scan find
 ## Credits
 
 Thank you to Serotonin devs, whomever made it.
+Original source -> https://github.com/101123/rust-dumper
 
 My original git got so messed up i made a new one, sorry to the people that forked
