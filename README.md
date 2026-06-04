@@ -2,6 +2,8 @@
 
 Uses live IL2CPP runtime reflection to dump class offsets, method RVAs, and typeinfo addresses.
 
+-- HEADS UP --  Need to create C:\dumps before running it, as it does not create the folder for you. 
+
 ## How it works
 
 **Injection** – The DLL gets injected into Rust. Nothing fancy; you're supposed to have EAC turned off.
@@ -35,3 +37,6 @@ Typeinfo RVAs are discovered purely at runtime — The `.data` section scan find
 ## Credits
 
 Thank you to Serotonin devs, whomever made it.
+Original source -> https://github.com/101123/rust-dumper
+
+My original git got so messed up i made a new one, sorry to the people that forked
