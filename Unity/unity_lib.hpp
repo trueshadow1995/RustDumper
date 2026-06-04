@@ -86,90 +86,160 @@ class component_t;
 class transform_t;
 class camera_t;
 
+// Read the native engine handle (m_CachedPtr) from any managed Unity Object.
+static inline uintptr_t unity_native_handle(const void *managed) {
+  if (!is_valid_ptr(managed)) return 0;
+  return *(const uintptr_t *)((const uint8_t *)managed + 0x10);
+}
+
+// SEH helpers for calling Unity icalls from member functions.
+// __try can't live in a function with C++ object unwinding, so these
+// are file-static non-member wrappers.
+static inline uintptr_t seh_u_u(uintptr_t (*fn)(uintptr_t), uintptr_t a) {
+  __try { return fn(a); } __except (EXCEPTION_EXECUTE_HANDLER) { return 0; }
+}
+static inline void seh_sp(void (*fn)(uintptr_t, void *),
+                          uintptr_t h, void *v) {
+  __try { fn(h, v); } __except (EXCEPTION_EXECUTE_HANDLER) {}
+}
+static inline void seh_gp(void (*fn)(uintptr_t, void *),
+                          uintptr_t h, void *out) {
+  __try { fn(h, out); } __except (EXCEPTION_EXECUTE_HANDLER) {}
+}
+
 class game_object_t {
 public:
-  static game_object_t *create(system_c::string_t name) {
-    static void (*create_f)(uint64_t, system_c::string_t) =
-        (decltype(create_f))il2cpp::resolve_icall(
-            "UnityEngine.GameObject::Internal_CreateGameObject(UnityEngine."
-            "GameObject,System.String)");
-
-    uint64_t game_object = il2cpp::object_new(
-        il2cpp::get_class_by_name("GameObject", "UnityEngine"));
-    create_f(game_object, name);
-
-    return (game_object_t *)game_object;
+  // On Unity 6, Internal_CreateGameObject and Internal_AddComponentWithType are
+  // [FreeFunction]s, not icalls — resolve_icall() returns null for them.
+  // Use get_method_by_name (SEH-guarded) with an RVA fallback.
+  static il2cpp::method_info_t *resolve_gobj_method(const char *name, int argc) {
+    __try {
+      il2cpp::il2cpp_class_t *go =
+          il2cpp::get_class_by_name("GameObject", "UnityEngine");
+      if (!go) return nullptr;
+      return il2cpp::get_method_by_name(go, name, argc);
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+      return nullptr;
+    }
   }
 
-  void add_component(il2cpp::il2cpp_type_t *type) {
-    static void (*add_component_f)(game_object_t *, il2cpp::il2cpp_object_t *) =
-        (decltype(add_component_f))il2cpp::resolve_icall(
-            "UnityEngine.GameObject::Internal_AddComponentWithType(System."
-            "Type)");
-    return add_component_f(this, il2cpp::type_get_object(type));
+  static void *gobj_method_ptr(const char *name, int argc, uint32_t rva) {
+    if (il2cpp::method_info_t *m = resolve_gobj_method(name, argc))
+      if (void *p = m->get_fn_ptr<void *>()) return p;
+    HMODULE ga = GetModuleHandleA("GameAssembly.dll");
+    if (ga && rva) return (void *)((uint64_t)ga + rva);
+    return nullptr;
   }
 
-  uint64_t get_component(il2cpp::il2cpp_type_t *type) {
-    static uint64_t (*get_component_f)(game_object_t *, void *) =
-        (decltype(get_component_f))il2cpp::resolve_icall(
-            "UnityEngine.GameObject::GetComponent(System.Type)");
-    return get_component_f(this, il2cpp::type_get_object(type));
+  static bool seh_call3(void (*fn)(uint64_t, void *, void *),
+                        uint64_t a, void *b, void *c) {
+    __try { fn(a, b, c); return true; }
+    __except (EXCEPTION_EXECUTE_HANDLER) { return false; }
   }
 
+  static void *seh_call_add(void *(*fn)(game_object_t *,
+                                        il2cpp::il2cpp_object_t *, void *),
+                            game_object_t *self,
+                            il2cpp::il2cpp_object_t *type_obj) {
+    __try { return fn(self, type_obj, nullptr); }
+    __except (EXCEPTION_EXECUTE_HANDLER) { return nullptr; }
+  }
+
+  static game_object_t *create(const wchar_t *name) {
+    static void (*create_f)(uint64_t, void *, void *) =
+        (decltype(create_f))gobj_method_ptr("Internal_CreateGameObject", 2,
+                                            0xB88B5A0);
+    if (!create_f) return nullptr;
+    il2cpp::il2cpp_class_t *go_class =
+        il2cpp::get_class_by_name("GameObject", "UnityEngine");
+    if (!go_class) return nullptr;
+    uint64_t go = il2cpp::object_new(go_class);
+    if (!go) return nullptr;
+    system_c::string_t *name_str = system_c::string_t::create_string(name);
+    seh_call3(create_f, go, name_str, nullptr);
+    return (game_object_t *)go;
+  }
+
+  // Returns the new component directly — do NOT call get_component after this.
+  // GetComponent_Injected hard-faults from injected-thread context on Unity 6.
+  uint64_t add_component(il2cpp::il2cpp_type_t *type) {
+    static void *(*add_component_f)(game_object_t *,
+                                    il2cpp::il2cpp_object_t *, void *) =
+        (decltype(add_component_f))gobj_method_ptr(
+            "Internal_AddComponentWithType", 1, 0xB88A020);
+    if (!add_component_f) return 0;
+    il2cpp::il2cpp_object_t *type_obj = il2cpp::type_get_object(type);
+    return (uint64_t)seh_call_add(add_component_f, this, type_obj);
+  }
+
+  uintptr_t native_handle() const { return unity_native_handle(this); }
+
+  // Unity 6: get_transform() icall renamed to _Injected, takes native handle.
   transform_t *get_transform() {
-    static transform_t *(*get_transform_f)(game_object_t *) =
-        (decltype(get_transform_f))il2cpp::resolve_icall(
-            "UnityEngine.GameObject::get_transform()");
-    return get_transform_f(this);
+    static auto gt_f = (uintptr_t (*)(uintptr_t))il2cpp::resolve_icall(
+        "UnityEngine.GameObject::get_transform_Injected(System.IntPtr)");
+    if (!gt_f) return nullptr;
+    uintptr_t h = native_handle();
+    if (!h) return nullptr;
+    return (transform_t *)seh_u_u(gt_f, h);
   }
 
   void dont_destroy_on_load() {
-    static void (*dont_destroy_on_load_f)(game_object_t *) =
-        (decltype(dont_destroy_on_load_f))il2cpp::resolve_icall(
-            "UnityEngine.Object::DontDestroyOnLoad(UnityEngine.Object)");
-    return dont_destroy_on_load_f(this);
+    static auto ddol_f = (void (*)(uintptr_t))il2cpp::resolve_icall(
+        "UnityEngine.Object::DontDestroyOnLoad_Injected(System.IntPtr)");
+    if (!ddol_f) return;
+    uintptr_t h = native_handle();
+    if (h) ddol_f(h);
   }
 };
 
 class component_t {
 public:
+  uintptr_t native_handle() const { return unity_native_handle(this); }
+
   transform_t *get_transform() {
-    static transform_t *(*get_transform_f)(component_t *) =
-        (decltype(get_transform_f))il2cpp::resolve_icall(
-            "UnityEngine.Component::get_transform()");
-    return get_transform_f(this);
+    static auto gt_f = (uintptr_t (*)(uintptr_t))il2cpp::resolve_icall(
+        "UnityEngine.Component::get_transform_Injected(System.IntPtr)");
+    if (!gt_f) return nullptr;
+    uintptr_t h = native_handle();
+    if (!h) return nullptr;
+    return (transform_t *)seh_u_u(gt_f, h);
   }
 };
 
 class transform_t {
 public:
-  vector3_t get_position() {
-    static void (*get_position_injected_f)(transform_t *, vector3_t *) =
-        (decltype(get_position_injected_f))il2cpp::resolve_icall(
-            "UnityEngine.Transform::get_position_Injected(UnityEngine.Vector3&"
-            ")");
+  uintptr_t native_handle() const { return unity_native_handle(this); }
 
-    vector3_t result;
-    get_position_injected_f(this, &result);
-    return result;
+  // Unity 6: set_position_Injected takes native IntPtr + Vector3& by ref.
+  void set_position(vector3_t position) {
+    static auto sp_f = (void (*)(uintptr_t, void *))il2cpp::resolve_icall(
+        "UnityEngine.Transform::set_position_Injected(System.IntPtr,"
+        "UnityEngine.Vector3&)");
+    if (!sp_f) return;
+    uintptr_t h = (uintptr_t)this;
+    if (h) seh_sp(sp_f, h, &position);
   }
 
-  void set_position(vector3_t position) {
-    static void (*set_position_injected_f)(transform_t *, vector3_t *) =
-        (decltype(set_position_injected_f))il2cpp::resolve_icall(
-            "UnityEngine.Transform::set_position_Injected(UnityEngine.Vector3&"
-            ")");
-    set_position_injected_f(this, &position);
+  vector3_t get_position() {
+    static auto gp_f = (void (*)(uintptr_t, void *))il2cpp::resolve_icall(
+        "UnityEngine.Transform::get_position_Injected(System.IntPtr,"
+        "UnityEngine.Vector3&)");
+    vector3_t result{};
+    if (!gp_f) return result;
+    uintptr_t h = native_handle();
+    if (h) seh_gp(gp_f, h, &result);
+    return result;
   }
 };
 
 class camera_t : public component_t {
 public:
   static camera_t *get_main() {
-    static camera_t *(*get_main_f)() =
-        (decltype(get_main_f))il2cpp::resolve_icall(
-            "UnityEngine.Camera::get_main()");
-    return get_main_f();
+    static auto gm_f = (uintptr_t (*)())il2cpp::resolve_icall(
+        "UnityEngine.Camera::get_main_Injected()");
+    if (!gm_f) return nullptr;
+    return (camera_t *)gm_f();
   }
 };
 

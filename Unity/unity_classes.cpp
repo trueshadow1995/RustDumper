@@ -1,4 +1,4 @@
-#include "dumper.hpp"
+﻿#include "dumper.hpp"
 #include "dumper_macros.hpp"
 #include "util.hpp"
 
@@ -13,78 +13,54 @@ void dumper::produce_unity() {
     DUMP_MEMBER_BY_NAME(m_CachedPtr);
     DUMPER_SECTION("Functions");
     DUMP_METHOD_BY_NAME(GetInstanceID);
-    DUMP_METHOD_BY_ICALL(
-        Destroy,
-        "UnityEngine.Object::Destroy(UnityEngine.Object,System.Single)");
-    DUMP_METHOD_BY_ICALL(DestroyImmediate,
-                         "UnityEngine.Object::DestroyImmediate(UnityEngine."
-                         "Object,System.Boolean)");
-    DUMP_METHOD_BY_ICALL(
-        DontDestroyOnLoad,
-        "UnityEngine.Object::DontDestroyOnLoad(UnityEngine.Object)");
-    DUMP_METHOD_BY_ICALL(
-        FindObjectFromInstanceID,
-        "UnityEngine.Object::FindObjectFromInstanceID(System.Int32)");
-    DUMP_METHOD_BY_ICALL(GetName,
-                         "UnityEngine.Object::GetName(UnityEngine.Object)");
-    DUMP_METHOD_BY_ICALL(get_hideFlags, "UnityEngine.Object::get_hideFlags()");
-    DUMP_METHOD_BY_ICALL(
-        set_hideFlags,
-        "UnityEngine.Object::set_hideFlags(UnityEngine.HideFlags)");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(Destroy, "Destroy", 2);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(DestroyImmediate, "DestroyImmediate", 2);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(DontDestroyOnLoad, "DontDestroyOnLoad", 1);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(FindObjectFromInstanceID,
+                                   "FindObjectFromInstanceID", 1);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(GetName, "GetName", 1);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_hideFlags, "get_hideFlags", 0);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(set_hideFlags, "set_hideFlags", 1);
     DUMPER_CLASS_END;
 
     DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE("GameObject", "UnityEngine");
     DUMPER_SECTION("Functions");
-    DUMP_METHOD_BY_ICALL(SetActive,
-                         "UnityEngine.GameObject::SetActive(System.Boolean)");
-    DUMP_METHOD_BY_ICALL(
-        Internal_AddComponentWithType,
-        "UnityEngine.GameObject::Internal_AddComponentWithType(System.Type)");
-    DUMP_METHOD_BY_ICALL(GetComponent,
-                         "UnityEngine.GameObject::GetComponent(System.Type)");
-    DUMP_METHOD_BY_ICALL(GetComponentCount,
-                         "UnityEngine.GameObject::GetComponentCount()");
-    DUMP_METHOD_BY_ICALL(GetComponentInChildren,
-                         "UnityEngine.GameObject::GetComponentInChildren("
-                         "System.Type,System.Boolean)");
-    DUMP_METHOD_BY_ICALL(GetComponentInParent,
-                         "UnityEngine.GameObject::GetComponentInParent(System."
-                         "Type,System.Boolean)");
-    DUMP_METHOD_BY_ICALL(
-        GetComponentsInternal,
-        "UnityEngine.GameObject::GetComponentsInternal(System.Type,System."
-        "Boolean,System.Boolean,System.Boolean,System.Boolean,System.Object)");
-    DUMP_METHOD_BY_ICALL(Internal_CreateGameObject,
-                         "UnityEngine.GameObject::Internal_CreateGameObject("
-                         "UnityEngine.GameObject,System.String)");
-    DUMP_METHOD_BY_ICALL(get_layer, "UnityEngine.GameObject::get_layer()");
-    DUMP_METHOD_BY_ICALL(get_tag, "UnityEngine.GameObject::get_tag()");
-    DUMP_METHOD_BY_ICALL(get_transform,
-                         "UnityEngine.GameObject::get_transform()");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(SetActive, "SetActive", 1);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(Internal_AddComponentWithType,
+                                   "Internal_AddComponentWithType", 1);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(GetComponent, "GetComponent", 1);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(GetComponentCount, "GetComponentCount", 0);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(GetComponentInChildren,
+                                   "GetComponentInChildren", 2);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(GetComponentInParent, "GetComponentInParent",
+                                   2);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(GetComponentsInternal,
+                                   "GetComponentsInternal", 6);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(Internal_CreateGameObject,
+                                   "Internal_CreateGameObject", 2);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_layer, "get_layer", 0);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_tag, "get_tag", 0);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_transform, "get_transform", 0);
     DUMPER_CLASS_END;
 
     DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE("Component", "UnityEngine");
     DUMPER_SECTION("Functions");
-    DUMP_METHOD_BY_ICALL(get_gameObject,
-                         "UnityEngine.Component::get_gameObject()");
-    DUMP_METHOD_BY_ICALL(get_transform,
-                         "UnityEngine.Component::get_transform()");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_gameObject, "get_gameObject", 0);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_transform, "get_transform", 0);
     DUMPER_CLASS_END;
 
     DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE("Behaviour", "UnityEngine");
     DUMPER_SECTION("Functions");
-    DUMP_METHOD_BY_ICALL(get_enabled, "UnityEngine.Behaviour::get_enabled()");
-    DUMP_METHOD_BY_ICALL(set_enabled,
-                         "UnityEngine.Behaviour::set_enabled(System.Boolean)");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_enabled, "get_enabled", 0);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(set_enabled, "set_enabled", 1);
     DUMPER_CLASS_END;
 
     DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE("Transform", "UnityEngine");
     DUMPER_SECTION("Functions");
     DUMP_METHOD_BY_NAME(get_eulerAngles);
-    DUMP_METHOD_BY_ICALL(GetChild,
-                         "UnityEngine.Transform::GetChild(System.Int32)");
-    DUMP_METHOD_BY_ICALL(GetParent, "UnityEngine.Transform::GetParent()");
-    DUMP_METHOD_BY_ICALL(GetRoot, "UnityEngine.Transform::GetRoot()");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(GetChild, "GetChild", 1);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(GetParent, "GetParent", 0);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(GetRoot, "GetRoot", 0);
     DUMP_METHOD_BY_ICALL(InverseTransformDirection_Injected,
                          "UnityEngine.Transform::InverseTransformDirection_"
                          "Injected(UnityEngine.Vector3&,UnityEngine.Vector3&)");
@@ -94,9 +70,8 @@ void dumper::produce_unity() {
     DUMP_METHOD_BY_ICALL(InverseTransformVector_Injected,
                          "UnityEngine.Transform::InverseTransformVector_"
                          "Injected(UnityEngine.Vector3&,UnityEngine.Vector3&)");
-    DUMP_METHOD_BY_ICALL(GetPositionAndRotation,
-                         "UnityEngine.Transform::GetPositionAndRotation("
-                         "UnityEngine.Vector3&,UnityEngine.Quaternion&)");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(GetPositionAndRotation,
+                                   "GetPositionAndRotation", 2);
     DUMP_METHOD_BY_ICALL(
         SetLocalPositionAndRotation_Injected,
         "UnityEngine.Transform::SetLocalPositionAndRotation_Injected("
@@ -114,8 +89,16 @@ void dumper::produce_unity() {
     DUMP_METHOD_BY_ICALL(TransformVector_Injected,
                          "UnityEngine.Transform::TransformVector_Injected("
                          "UnityEngine.Vector3&,UnityEngine.Vector3&)");
-    DUMP_METHOD_BY_ICALL(get_childCount,
-                         "UnityEngine.Transform::get_childCount()");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_childCount, "get_childCount", 0);
+    DUMP_METHOD_BY_ICALL(get_forward_Injected,
+                         "UnityEngine.Transform::get_forward_Injected("
+                         "UnityEngine.Vector3&)");
+    DUMP_METHOD_BY_ICALL(get_right_Injected,
+                         "UnityEngine.Transform::get_right_Injected("
+                         "UnityEngine.Vector3&)");
+    DUMP_METHOD_BY_ICALL(get_up_Injected,
+                         "UnityEngine.Transform::get_up_Injected("
+                         "UnityEngine.Vector3&)");
     DUMP_METHOD_BY_ICALL(get_localPosition_Injected,
                          "UnityEngine.Transform::get_localPosition_Injected("
                          "UnityEngine.Vector3&)");
@@ -153,107 +136,91 @@ void dumper::produce_unity() {
 
     DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE("Camera", "UnityEngine");
     DUMPER_SECTION("Functions");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_main, "get_main", 0);
     DUMP_METHOD_BY_ICALL(
         WorldToScreenPoint_Injected,
         "UnityEngine.Camera::WorldToScreenPoint_Injected(UnityEngine.Vector3&,"
         "UnityEngine.Camera/MonoOrStereoscopicEye,UnityEngine.Vector3&)");
-    DUMP_METHOD_BY_ICALL(GetAllCamerasCount,
-                         "UnityEngine.Camera::GetAllCamerasCount()");
-    DUMP_METHOD_BY_ICALL(CopyFrom,
-                         "UnityEngine.Camera::CopyFrom(UnityEngine.Camera)");
-    DUMP_METHOD_BY_ICALL(set_cullingMask,
-                         "UnityEngine.Camera::set_cullingMask(System.Int32)");
     DUMP_METHOD_BY_ICALL(
-        set_clearFlags,
-        "UnityEngine.Camera::set_clearFlags(UnityEngine.CameraClearFlags)");
+        ScreenToWorldPoint_Injected,
+        "UnityEngine.Camera::ScreenToWorldPoint_Injected(UnityEngine.Vector3&,"
+        "UnityEngine.Camera/MonoOrStereoscopicEye,UnityEngine.Vector3&)");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(GetAllCamerasCount, "GetAllCamerasCount", 0);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(CopyFrom, "CopyFrom", 1);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_fieldOfView, "get_fieldOfView", 0);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(set_fieldOfView, "set_fieldOfView", 1);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_nearClipPlane, "get_nearClipPlane", 0);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(set_nearClipPlane, "set_nearClipPlane", 1);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_farClipPlane, "get_farClipPlane", 0);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(set_farClipPlane, "set_farClipPlane", 1);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_depth, "get_depth", 0);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(set_depth, "set_depth", 1);
+    DUMP_METHOD_BY_ICALL(get_projectionMatrix_Injected,
+                         "UnityEngine.Camera::get_projectionMatrix_Injected("
+                         "UnityEngine.Matrix4x4&)");
+    DUMP_METHOD_BY_ICALL(set_projectionMatrix_Injected,
+                         "UnityEngine.Camera::set_projectionMatrix_Injected("
+                         "UnityEngine.Matrix4x4&)");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(set_cullingMask, "set_cullingMask", 1);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(set_clearFlags, "set_clearFlags", 1);
     DUMP_METHOD_BY_ICALL(
         set_backgroundColor_Injected,
         "UnityEngine.Camera::set_backgroundColor_Injected(UnityEngine.Color&)");
-    DUMP_METHOD_BY_ICALL(
-        set_targetTexture,
-        "UnityEngine.Camera::set_targetTexture(UnityEngine.RenderTexture)");
-    DUMP_METHOD_BY_ICALL(Render, "UnityEngine.Camera::Render()");
-    DUMP_METHOD_BY_ICALL(RenderWithShader,
-                         "UnityEngine.Camera::RenderWithShader(UnityEngine."
-                         "Shader,System.String)");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(set_targetTexture, "set_targetTexture", 1);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(Render, "Render", 0);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(RenderWithShader, "RenderWithShader", 2);
     DUMPER_CLASS_END;
 
     DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE("Time", "UnityEngine");
     DUMPER_SECTION("Functions");
-    DUMP_METHOD_BY_ICALL(get_deltaTime, "UnityEngine.Time::get_deltaTime()");
-    DUMP_METHOD_BY_ICALL(get_fixedDeltaTime,
-                         "UnityEngine.Time::get_fixedDeltaTime()");
-    DUMP_METHOD_BY_ICALL(get_fixedTime, "UnityEngine.Time::get_fixedTime()");
-    DUMP_METHOD_BY_ICALL(get_frameCount, "UnityEngine.Time::get_frameCount()");
-    DUMP_METHOD_BY_ICALL(get_realtimeSinceStartup,
-                         "UnityEngine.Time::get_realtimeSinceStartup()");
-    DUMP_METHOD_BY_ICALL(get_smoothDeltaTime,
-                         "UnityEngine.Time::get_smoothDeltaTime()");
-    DUMP_METHOD_BY_ICALL(get_time, "UnityEngine.Time::get_time()");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_deltaTime, "get_deltaTime", 0);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_fixedDeltaTime, "get_fixedDeltaTime", 0);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_fixedTime, "get_fixedTime", 0);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_frameCount, "get_frameCount", 0);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_realtimeSinceStartup,
+                                   "get_realtimeSinceStartup", 0);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_smoothDeltaTime, "get_smoothDeltaTime",
+                                   0);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_time, "get_time", 0);
     DUMPER_CLASS_END;
 
     DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE("Material", "UnityEngine");
     DUMPER_SECTION("Functions");
-    DUMP_METHOD_BY_ICALL(
-        SetFloatImpl,
-        "UnityEngine.Material::SetFloatImpl(System.Int32,System.Single)");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(SetFloatImpl, "SetFloatImpl", 2);
     DUMP_METHOD_BY_ICALL(SetColorImpl_Injected,
                          "UnityEngine.Material::SetColorImpl_Injected(System."
                          "Int32,UnityEngine.Color&)");
-    DUMP_METHOD_BY_ICALL(SetTextureImpl,
-                         "UnityEngine.Material::SetTextureImpl(System.Int32,"
-                         "UnityEngine.Texture)");
-    DUMP_METHOD_BY_ICALL(CreateWithMaterial,
-                         "UnityEngine.Material::CreateWithMaterial(UnityEngine."
-                         "Material,UnityEngine.Material)");
-    DUMP_METHOD_BY_ICALL(CreateWithShader,
-                         "UnityEngine.Material::CreateWithShader(UnityEngine."
-                         "Material,UnityEngine.Shader)");
-    DUMP_METHOD_BY_ICALL(SetBufferImpl,
-                         "UnityEngine.Material::SetBufferImpl(System.Int32,"
-                         "UnityEngine.ComputeBuffer)");
-    DUMP_METHOD_BY_ICALL(
-        set_shader, "UnityEngine.Material::set_shader(UnityEngine.Shader)");
-    DUMP_METHOD_BY_ICALL(get_shader, "UnityEngine.Material::get_shader()");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(SetTextureImpl, "SetTextureImpl", 2);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(CreateWithMaterial, "CreateWithMaterial", 2);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(CreateWithShader, "CreateWithShader", 2);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(SetBufferImpl, "SetBufferImpl", 2);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(set_shader, "set_shader", 1);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_shader, "get_shader", 0);
     DUMPER_CLASS_END;
 
     DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE("MaterialPropertyBlock",
                                            "UnityEngine");
     DUMPER_SECTION("Functions");
     DUMP_METHOD_BY_NAME_STR(ctor, ".ctor");
-    DUMP_METHOD_BY_ICALL(SetFloatImpl,
-                         "UnityEngine.MaterialPropertyBlock::SetFloatImpl("
-                         "System.Int32,System.Single)");
-    DUMP_METHOD_BY_ICALL(SetTextureImpl,
-                         "UnityEngine.MaterialPropertyBlock::SetTextureImpl("
-                         "System.Int32,UnityEngine.Texture)");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(SetFloatImpl, "SetFloatImpl", 2);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(SetTextureImpl, "SetTextureImpl", 2);
     DUMPER_CLASS_END;
 
     DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE("Shader", "UnityEngine");
     DUMPER_SECTION("Functions");
     DUMP_METHOD_BY_NAME(Find);
-    DUMP_METHOD_BY_ICALL(PropertyToID,
-                         "UnityEngine.Shader::PropertyToID(System.String)");
-    DUMP_METHOD_BY_ICALL(GetPropertyCount,
-                         "UnityEngine.Shader::GetPropertyCount()");
-    DUMP_METHOD_BY_ICALL(
-        GetPropertyName,
-        "UnityEngine.Shader::GetPropertyName(UnityEngine.Shader,System.Int32)");
-    DUMP_METHOD_BY_ICALL(
-        GetPropertyType,
-        "UnityEngine.Shader::GetPropertyType(UnityEngine.Shader,System.Int32)");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(PropertyToID, "PropertyToID", 1);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(GetPropertyCount, "GetPropertyCount", 0);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(GetPropertyName, "GetPropertyName", 2);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(GetPropertyType, "GetPropertyType", 2);
     DUMPER_CLASS_END;
 
     DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE("Mesh", "UnityEngine");
     DUMPER_SECTION("Functions");
-    DUMP_METHOD_BY_ICALL(Internal_Create,
-                         "UnityEngine.Mesh::Internal_Create(UnityEngine.Mesh)");
-    DUMP_METHOD_BY_ICALL(MarkDynamicImpl,
-                         "UnityEngine.Mesh::MarkDynamicImpl()");
-    DUMP_METHOD_BY_ICALL(ClearImpl,
-                         "UnityEngine.Mesh::ClearImpl(System.Boolean)");
-    DUMP_METHOD_BY_ICALL(set_subMeshCount,
-                         "UnityEngine.Mesh::set_subMeshCount(System.Int32)");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(Internal_Create, "Internal_Create", 1);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(MarkDynamicImpl, "MarkDynamicImpl", 0);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(ClearImpl, "ClearImpl", 1);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(set_subMeshCount, "set_subMeshCount", 1);
     DUMP_METHOD_BY_ICALL(SetVertexBufferParamsFromPtr,
                          "UnityEngine.Mesh::SetVertexBufferParamsFromPtr");
     DUMP_METHOD_BY_ICALL(SetIndexBufferParams,
@@ -265,68 +232,52 @@ void dumper::produce_unity() {
     DUMP_METHOD_BY_ICALL(
         SetAllSubMeshesAtOnceFromNativeArray,
         "UnityEngine.Mesh::SetAllSubMeshesAtOnceFromNativeArray");
-    DUMP_METHOD_BY_ICALL(
-        UploadMeshDataImpl,
-        "UnityEngine.Mesh::UploadMeshDataImpl(System.Boolean)");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(UploadMeshDataImpl, "UploadMeshDataImpl", 1);
     DUMPER_CLASS_END;
 
     DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE("Renderer", "UnityEngine");
     DUMPER_SECTION("Functions");
-    DUMP_METHOD_BY_ICALL(get_enabled, "UnityEngine.Renderer::get_enabled()");
-    DUMP_METHOD_BY_ICALL(get_isVisible,
-                         "UnityEngine.Renderer::get_isVisible()");
-    DUMP_METHOD_BY_ICALL(GetMaterial, "UnityEngine.Renderer::GetMaterial()");
-    DUMP_METHOD_BY_ICALL(GetMaterialArray,
-                         "UnityEngine.Renderer::GetMaterialArray()");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_enabled, "get_enabled", 0);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_isVisible, "get_isVisible", 0);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(GetMaterial, "GetMaterial", 0);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(GetMaterialArray, "GetMaterialArray", 0);
     DUMPER_CLASS_END;
 
     DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE("Texture", "UnityEngine");
     DUMPER_SECTION("Functions");
-    DUMP_METHOD_BY_ICALL(
-        set_filterMode,
-        "UnityEngine.Texture::set_filterMode(UnityEngine.FilterMode)");
-    DUMP_METHOD_BY_ICALL(GetNativeTexturePtr,
-                         "UnityEngine.Texture::GetNativeTexturePtr()");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(set_filterMode, "set_filterMode", 1);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(GetNativeTexturePtr, "GetNativeTexturePtr",
+                                   0);
     DUMPER_CLASS_END;
 
     DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE("Texture2D", "UnityEngine");
     DUMPER_SECTION("Functions");
     DUMP_METHOD_BY_NAME_STR_ARG_CT(ctor, ".ctor", 9);
-    DUMP_METHOD_BY_ICALL(
-        Internal_CreateImpl,
-        "UnityEngine.Texture2D::Internal_CreateImpl(UnityEngine.Texture2D,"
-        "System.Int32,System.Int32,System.Int32,UnityEngine.Experimental."
-        "Rendering.GraphicsFormat,UnityEngine.TextureColorSpace,UnityEngine."
-        "Experimental.Rendering.TextureCreationFlags,System.IntPtr,System."
-        "String)");
-    DUMP_METHOD_BY_ICALL(GetRawImageDataSize,
-                         "UnityEngine.Texture2D::GetRawImageDataSize()");
-    DUMP_METHOD_BY_ICALL(
-        GetWritableImageData,
-        "UnityEngine.Texture2D::GetWritableImageData(System.Int32)");
-    DUMP_METHOD_BY_ICALL(
-        ApplyImpl,
-        "UnityEngine.Texture2D::ApplyImpl(System.Boolean,System.Boolean)");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(Internal_CreateImpl, "Internal_CreateImpl",
+                                   9);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(GetRawImageDataSize, "GetRawImageDataSize",
+                                   0);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(GetWritableImageData, "GetWritableImageData",
+                                   1);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(ApplyImpl, "ApplyImpl", 2);
     DUMPER_CLASS_END;
 
     DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE("Sprite", "UnityEngine");
     DUMPER_SECTION("Functions");
-    DUMP_METHOD_BY_ICALL(get_texture, "UnityEngine.Sprite::get_texture()");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_texture, "get_texture", 0);
     DUMPER_CLASS_END;
 
     DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE("RenderTexture", "UnityEngine");
     DUMPER_SECTION("Functions");
     DUMP_METHOD_BY_NAME_STR_ARG_CT(GetTemporary, "GetTemporary", 3);
-    DUMP_METHOD_BY_ICALL(ReleaseTemporary,
-                         "UnityEngine.RenderTexture::ReleaseTemporary("
-                         "UnityEngine.RenderTexture)");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(ReleaseTemporary, "ReleaseTemporary", 1);
     DUMPER_CLASS_END;
 
     DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE("CommandBuffer",
                                            "UnityEngine.Rendering");
     DUMPER_SECTION("Functions");
     DUMP_METHOD_BY_NAME_STR(ctor, ".ctor");
-    DUMP_METHOD_BY_ICALL(Clear, "UnityEngine.Rendering.CommandBuffer::Clear()");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(Clear, "Clear", 0);
     DUMP_METHOD_BY_ICALL(
         SetRenderTargetSingle_Internal_Injected,
         "UnityEngine.Rendering.CommandBuffer::SetRenderTargetSingle_Internal_"
@@ -350,9 +301,7 @@ void dumper::produce_unity() {
     DUMP_METHOD_BY_ICALL(EnableScissorRect_Injected,
                          "UnityEngine.Rendering.CommandBuffer::"
                          "EnableScissorRect_Injected(UnityEngine.Rect&)");
-    DUMP_METHOD_BY_ICALL(
-        DisableScissorRect,
-        "UnityEngine.Rendering.CommandBuffer::DisableScissorRect()");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(DisableScissorRect, "DisableScissorRect", 0);
     DUMP_METHOD_BY_ICALL(Internal_DrawProceduralIndexedIndirect_Injected,
                          "UnityEngine.Rendering.CommandBuffer::Internal_"
                          "DrawProceduralIndexedIndirect_Injected()");
@@ -361,10 +310,8 @@ void dumper::produce_unity() {
         "UnityEngine.Rendering.CommandBuffer::Internal_DrawMesh_Injected("
         "UnityEngine.Mesh,UnityEngine.Matrix4x4&,UnityEngine.Material,System."
         "Int32,System.Int32,UnityEngine.MaterialPropertyBlock)")
-    DUMP_METHOD_BY_ICALL(
-        Internal_DrawRenderer,
-        "UnityEngine.Rendering.CommandBuffer::Internal_DrawRenderer("
-        "UnityEngine.Renderer,UnityEngine.Material,System.Int32,System.Int32)");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(Internal_DrawRenderer,
+                                   "Internal_DrawRenderer", 4);
     DUMPER_CLASS_END;
 
     DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE("RenderTargetIdentifier",
@@ -376,43 +323,35 @@ void dumper::produce_unity() {
     DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE("ComputeBuffer", "UnityEngine");
     DUMPER_SECTION("Functions");
     DUMP_METHOD_BY_NAME_STR_ARG_CT(ctor, ".ctor", 5);
-    DUMP_METHOD_BY_ICALL(get_count, "UnityEngine.ComputeBuffer::get_count()");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_count, "get_count", 0);
     DUMP_METHOD_BY_NAME(Release);
-    DUMP_METHOD_BY_ICALL(
-        InternalSetNativeData,
-        "UnityEngine.ComputeBuffer::InternalSetNativeData(System.IntPtr,System."
-        "Int32,System.Int32,System.Int32,System.Int32)");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(InternalSetNativeData,
+                                   "InternalSetNativeData", 5);
     DUMPER_CLASS_END;
 
     DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE("GraphicsBuffer", "UnityEngine");
     DUMPER_SECTION("Functions");
     DUMP_METHOD_BY_NAME_STR_ARG_CT(ctor, ".ctor", 3);
-    DUMP_METHOD_BY_ICALL(get_count, "UnityEngine.GraphicsBuffer::get_count()");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_count, "get_count", 0);
     DUMP_METHOD_BY_NAME_STR_ARG_CT(Dispose, "Dispose", 0);
-    DUMP_METHOD_BY_ICALL(
-        InternalSetNativeData,
-        "UnityEngine.GraphicsBuffer::InternalSetNativeData(System.IntPtr,"
-        "System.Int32,System.Int32,System.Int32,System.Int32)");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(InternalSetNativeData,
+                                   "InternalSetNativeData", 5);
     DUMPER_CLASS_END;
 
     DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE("Event", "UnityEngine");
     DUMPER_SECTION("Functions");
     DUMP_METHOD_BY_NAME(get_current);
-    DUMP_METHOD_BY_ICALL(get_type, "UnityEngine.Event::get_type()");
-    DUMP_METHOD_BY_ICALL(PopEvent,
-                         "UnityEngine.Event::PopEvent(UnityEngine.Event)");
-    DUMP_METHOD_BY_ICALL(Internal_Use, "UnityEngine.Event::Internal_Use()");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_type, "get_type", 0);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(PopEvent, "PopEvent", 1);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(Internal_Use, "Internal_Use", 0);
     DUMPER_CLASS_END;
 
     DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE("Graphics", "UnityEngine");
     DUMPER_SECTION("Functions");
-    DUMP_METHOD_BY_ICALL(Internal_BlitMaterial5,
-                         "UnityEngine.Graphics::Internal_BlitMaterial5("
-                         "UnityEngine.Texture,UnityEngine.RenderTexture,"
-                         "UnityEngine.Material,System.Int32,System.Boolean)");
-    DUMP_METHOD_BY_ICALL(ExecuteCommandBuffer,
-                         "UnityEngine.Graphics::ExecuteCommandBuffer("
-                         "UnityEngine.Rendering.CommandBuffer)");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(Internal_BlitMaterial5,
+                                   "Internal_BlitMaterial5", 5);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(ExecuteCommandBuffer, "ExecuteCommandBuffer",
+                                   1);
     DUMPER_CLASS_END;
 
     DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE("Matrix4x4", "UnityEngine");
@@ -427,20 +366,16 @@ void dumper::produce_unity() {
     DUMPER_SECTION("Functions");
     DUMP_METHOD_BY_ICALL(LoadFromMemory_Internal,
                          "UnityEngine.AssetBundle::LoadFromMemory_Internal");
-    DUMP_METHOD_BY_ICALL(LoadFromFile_Internal,
-                         "UnityEngine.AssetBundle::LoadFromFile_Internal("
-                         "System.String,System.UInt32,System.UInt64)");
-    DUMP_METHOD_BY_ICALL(LoadAsset_Internal,
-                         "UnityEngine.AssetBundle::LoadAsset_Internal(System."
-                         "String,System.Type)");
-    DUMP_METHOD_BY_ICALL(Unload,
-                         "UnityEngine.AssetBundle::Unload(System.Boolean)");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(LoadFromFile_Internal,
+                                   "LoadFromFile_Internal", 3);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(LoadAsset_Internal, "LoadAsset_Internal", 2);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(Unload, "Unload", 1);
     DUMPER_CLASS_END;
 
     DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE("Screen", "UnityEngine");
     DUMPER_SECTION("Functions");
-    DUMP_METHOD_BY_ICALL(get_width, "UnityEngine.Screen::get_width()");
-    DUMP_METHOD_BY_ICALL(get_height, "UnityEngine.Screen::get_height()");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_width, "get_width", 0);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_height, "get_height", 0);
     DUMPER_CLASS_END;
 
     DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE("Input", "UnityEngine");
@@ -451,26 +386,19 @@ void dumper::produce_unity() {
     DUMP_METHOD_BY_ICALL(get_mouseScrollDelta_Injected,
                          "UnityEngine.Input::get_mouseScrollDelta_Injected("
                          "UnityEngine.Vector2&)");
-    DUMP_METHOD_BY_ICALL(GetMouseButtonDown,
-                         "UnityEngine.Input::GetMouseButtonDown(System.Int32)");
-    DUMP_METHOD_BY_ICALL(GetMouseButtonUp,
-                         "UnityEngine.Input::GetMouseButtonUp(System.Int32)");
-    DUMP_METHOD_BY_ICALL(GetMouseButton,
-                         "UnityEngine.Input::GetMouseButton(System.Int32)");
-    DUMP_METHOD_BY_ICALL(
-        GetKeyDownInt, "UnityEngine.Input::GetKeyDownInt(UnityEngine.KeyCode)");
-    DUMP_METHOD_BY_ICALL(GetKeyUpInt,
-                         "UnityEngine.Input::GetKeyUpInt(UnityEngine.KeyCode)");
-    DUMP_METHOD_BY_ICALL(GetKeyInt,
-                         "UnityEngine.Input::GetKeyInt(UnityEngine.KeyCode)");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(GetMouseButtonDown, "GetMouseButtonDown", 1);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(GetMouseButtonUp, "GetMouseButtonUp", 1);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(GetMouseButton, "GetMouseButton", 1);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(GetKeyDownInt, "GetKeyDownInt", 1);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(GetKeyUpInt, "GetKeyUpInt", 1);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(GetKeyInt, "GetKeyInt", 1);
     DUMPER_CLASS_END;
 
     DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE("Application", "UnityEngine");
     DUMPER_SECTION("Functions");
-    DUMP_METHOD_BY_ICALL(get_version, "UnityEngine.Application::get_version()");
-    DUMP_METHOD_BY_ICALL(Quit, "UnityEngine.Application::Quit(System.Int32)");
-    DUMP_METHOD_BY_ICALL(get_isFocused,
-                         "UnityEngine.Application::get_isFocused()");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_version, "get_version", 0);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(Quit, "Quit", 1);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_isFocused, "get_isFocused", 0);
     DUMPER_CLASS_END;
 
     DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE("Gradient", "UnityEngine");
@@ -495,14 +423,13 @@ void dumper::produce_unity() {
     DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE("GraphicsSettings",
                                            "UnityEngine.Rendering");
     DUMPER_SECTION("Functions");
-    DUMP_METHOD_BY_ICALL(get_INTERNAL_defaultRenderPipeline,
-                         "UnityEngine.Rendering.GraphicsSettings::get_INTERNAL_"
-                         "defaultRenderPipeline()");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_INTERNAL_defaultRenderPipeline,
+                                   "get_INTERNAL_defaultRenderPipeline", 0);
     DUMPER_CLASS_END;
 
     DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE("Cursor", "UnityEngine");
     DUMPER_SECTION("Functions");
-    DUMP_METHOD_BY_ICALL(get_visible, "UnityEngine.Cursor::get_visible()");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_visible, "get_visible", 0);
     DUMPER_CLASS_END;
   } __except (EXCEPTION_EXECUTE_HANDLER) {
     printf("[Rust Dumper] Exception during Unity class dumping\n");

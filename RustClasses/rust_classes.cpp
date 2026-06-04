@@ -1,6 +1,7 @@
-#include "dumper.hpp"
+﻿#include "dumper.hpp"
 #include "dumper_macros.hpp"
 #include "util.hpp"
+#include <map>
 #include <stdlib.h>
 
 il2cpp::il2cpp_class_t* projectile_attack_networkable_id = nullptr;
@@ -28,6 +29,17 @@ bool resolved_projectile_attack = false;
     for (auto field : fields)                                               \
       *(type*)(instance + field->offset()) = (type)value;                   \
   }
+
+static bool seh_call_initialize_velocity(void (*fn)(uint64_t, unity::vector3_t),
+                                         uint64_t projectile,
+                                         unity::vector3_t v) {
+  __try {
+    fn(projectile, v);
+    return true;
+  } __except (EXCEPTION_EXECUTE_HANDLER) {
+    return false;
+  }
+}
 
 bool is_exception_hook(CONTEXT* context, uint64_t search, uint64_t replace,
                        uint64_t limit) {
@@ -455,7 +467,7 @@ void dumper::produce() {
   }
   printf("[Rust Dumper] Found UnityPlayer.dll at 0x%llx\n", unity_base);
 
-  // Create log file FIRST so we can see what happens
+//log file
   outfile_log_handle = fopen("C:\\dumps\\dumper_output.log", "w");
   if (!outfile_log_handle) {
     printf("[Rust Dumper] Failed to create log file\n");
@@ -618,7 +630,7 @@ void dumper::produce() {
         il2cpp::get_virtual_method_by_name(
             facepunch_network_raknet_client_class, "get_IsConnected", 0);
 
-    // Fallback: scan class directly for a virtual bool no-param method
+
     if (!facepunch_network_raknet_client_is_connected.method) {
       il2cpp::method_info_t* is_connected_method =
           il2cpp::get_method_by_return_type_attrs(
@@ -981,13 +993,12 @@ void dumper::produce() {
       // We're only looking for obfuscated types
       if (type_name[0] != '%') continue;
 
-      // We don't want NetworkableId
+      // don't want NetworkableId
       if (!strcmp(type_name, networkable_id_class->name())) continue;
 
       input_state_class = field->type()->klass();
 
-      // Find InputMessage by finding a field that isn't static, and is of an
-      // obfuscated type
+      // Find InputMessage by finding a field that isn't static
       if (input_state_class) {
         iter = nullptr;
 
@@ -998,7 +1009,7 @@ void dumper::produce() {
           const char* type_name = field->type()->name();
           if (!type_name) continue;
 
-          // We're only looking for obfuscated types
+          //  only looking for obfuscated types
           if (type_name[0] != '%') continue;
 
           input_message_class = field->type()->klass();
@@ -1062,8 +1073,7 @@ void dumper::produce() {
     std::vector<il2cpp::il2cpp_class_t*> interfaces =
         rust_ai_gen2_state_dead_class->get_interfaces();
 
-    // Find IParametrized<HitInfo> - iterate interfaces so extra ones don't
-    // break us
+
     for (auto& iface : interfaces) {
       il2cpp::il2cpp_class_t* arg = iface->get_generic_argument_at(0);
       if (arg) {
@@ -1075,7 +1085,6 @@ void dumper::produce() {
     }
   }
 
-  // Fallback 1: Try to find HitInfo through BasePlayer methods
   if (!hit_info_class) {
     write_to_log(
         "[FALLBACK] Trying to find HitInfo through BasePlayer methods\n");
@@ -1085,8 +1094,7 @@ void dumper::produce() {
           "[FALLBACK] BasePlayer class found, searching for method with "
           "HitInfo parameter\n");
 
-      // Iterate through all methods to find one that takes HitInfo-like
-      // parameter
+
       void* method_iter = nullptr;
       il2cpp::method_info_t* found_method = nullptr;
 
@@ -1094,30 +1102,25 @@ void dumper::produce() {
                  base_player_class->methods(&method_iter)) {
         if (!method || method->param_count() == 0) continue;
 
-        // Get first parameter type
+  
         il2cpp::il2cpp_type_t* param_type = method->get_param(0);
         if (!param_type) continue;
 
         il2cpp::il2cpp_class_t* param_class = param_type->klass();
         if (!param_class) continue;
 
-        // HitInfo has a RaycastHit field and multiple Vector3 fields
         int field_count = param_class->field_count();
         if (field_count < 8 || field_count > 80) continue;
 
         void* field_iter = nullptr;
         int vector3_count = 0;
-        bool has_raycast_hit = false;
 
         while (il2cpp::field_info_t* field = param_class->fields(&field_iter)) {
           const char* type_name = field->type()->name();
-          if (type_name) {
-            if (strstr(type_name, "Vector3")) vector3_count++;
-            if (strstr(type_name, "RaycastHit")) has_raycast_hit = true;
-          }
+          if (type_name && strstr(type_name, "Vector3")) vector3_count++;
         }
 
-        if (vector3_count >= 4 && has_raycast_hit) {
+        if (vector3_count >= 4) {
           hit_info_class = param_class;
           write_to_log(
               "[FALLBACK] Found HitInfo through BasePlayer.%s: %s (fields: %d, "
@@ -1137,7 +1140,7 @@ void dumper::produce() {
     }
   }
 
-  // Fallback 2: Try to find HitInfo through BaseCombatEntity
+
   if (!hit_info_class) {
     write_to_log(
         "[FALLBACK] Trying to find HitInfo through BaseCombatEntity\n");
@@ -1162,7 +1165,7 @@ void dumper::produce() {
     }
   }
 
-  // Fallback 3: Direct class lookup
+
   if (!hit_info_class) {
     write_to_log("[FALLBACK] Trying direct HitInfo class lookup\n");
     hit_info_class = DUMPER_CLASS("HitInfo");
@@ -1171,7 +1174,7 @@ void dumper::produce() {
     }
   }
 
-  // Fallback 4: Search Assembly-CSharp for HitInfo by structure
+
   if (!hit_info_class) {
     write_to_log(
         "[FALLBACK] Searching Assembly-CSharp for HitInfo by structure\n");
@@ -1235,7 +1238,6 @@ void dumper::produce() {
                      candidates.size());
 
         // All candidates already have BaseEntity + 3+ Vector3 fields.
-        // Pick the one with the most Vector3 fields as best match.
         int best_vec3 = 0;
         for (auto candidate : candidates) {
           int v = 0;
@@ -1642,7 +1644,7 @@ void dumper::produce() {
   if (convar_client_connect) {
     convar_client_class = convar_client_connect->klass();
   } else {
-    // Fallback: Try to find ConVar.Client through console commands
+    // Attempt to find ConVar.Client through console commands
     write_to_log(
         "[FALLBACK] Trying to find ConVar.Client through console system\n");
     rust::console_system::command* client_connect_cmd =
@@ -2195,13 +2197,13 @@ void dumper::produce() {
   DUMPER_CLASS_END;
 
   uint64_t (*main_camera_trace)(float, uint64_t, float) = nullptr;
-
-  char searchBuf[128] = {0};
-  sprintf_s(searchBuf, "%s.Type", hit_test_class->name());
-
   il2cpp::method_info_t* gametrace_trace = nullptr;
+  char searchBuf[128] = {0};
 
-  DUMPER_CLASS_BEGIN_FROM_PTR("HitTest", hit_test_class);
+  if (hit_test_class) {
+    sprintf_s(searchBuf, "%s.Type", hit_test_class->name());
+
+    DUMPER_CLASS_BEGIN_FROM_PTR("HitTest", hit_test_class);
   DUMPER_SECTION("Offsets");
   DUMP_MEMBER_BY_FIELD_TYPE_CLASS_CONTAINS(type, searchBuf);
   DUMP_MEMBER_BY_FIELD_TYPE_CLASS(AttackRay,
@@ -2323,6 +2325,7 @@ void dumper::produce() {
     }
   }
   DUMPER_CLASS_END;
+  }
 
   il2cpp::method_info_t* projectile_do_hit_method = nullptr;
 
@@ -2345,123 +2348,64 @@ void dumper::produce() {
       (decltype(projectile_initialize_velocity))DUMPER_METHOD(
           dumper_klass, "InitializeVelocity");
 
-  il2cpp::method_info_t* projectile_launch_method =
-      il2cpp::get_method_by_return_type_attrs(
-          FILT_N(
-              DUMPER_METHOD(DUMPER_CLASS("BaseProjectile"), "LaunchProjectile"),
-              2),
-          DUMPER_CLASS("Projectile"), DUMPER_CLASS_NAMESPACE("System", "Void"),
-          DUMPER_ATTR_DONT_CARE, METHOD_ATTRIBUTE_ASSEM, 0);
-
-  void (*projectile_launch)(uint64_t) =
-      (decltype(projectile_launch))
-          projectile_launch_method->get_fn_ptr<uint64_t>();
-  void (*projectile_on_disable)(uint64_t) =
-      (decltype(projectile_on_disable))DUMPER_METHOD(dumper_klass, "OnDisable");
-
-  if (projectile_initialize_velocity && is_valid_ptr(projectile_launch) &&
-      projectile_on_disable) {
+  if (projectile_initialize_velocity) {
     unity::game_object_t* game_object = unity::game_object_t::create(L"");
-    game_object->add_component(dumper_klass->type());
-
-    // Spawn the projectile super high up, so the results are always the same
-    // regardless of map
-    if (unity::transform_t* transform = game_object->get_transform()) {
-      transform->set_position(unity::vector3_t(420.f, 4200.f, 420.f));
+    uint64_t projectile = 0;
+    if (game_object) {
+      projectile = game_object->add_component(dumper_klass->type());
+      if (unity::transform_t* transform = game_object->get_transform())
+        transform->set_position(unity::vector3_t(420.f, 4200.f, 420.f));
     }
-
-    if (uint64_t projectile =
-            game_object->get_component(dumper_klass->type())) {
-      projectile_initialize_velocity(projectile,
-                                     unity::vector3_t(1337.f, 1337.f, 1337.f));
-
-      std::vector<il2cpp::field_info_t*> floats = il2cpp::get_fields_of_type(
-          dumper_klass, DUMPER_TYPE_NAMESPACE("System", "Single"),
-          DUMPER_ATTR_DONT_CARE, DUMPER_ATTR_DONT_CARE);
-      std::vector<il2cpp::field_info_t*> vectors = il2cpp::get_fields_of_type(
-          dumper_klass, DUMPER_TYPE_NAMESPACE("UnityEngine", "Vector3"),
-          DUMPER_ATTR_DONT_CARE, DUMPER_ATTR_DONT_CARE);
+    if (projectile) {
       std::vector<il2cpp::field_info_t*> internal_vectors =
           il2cpp::get_fields_of_type(
               dumper_klass, DUMPER_TYPE_NAMESPACE("UnityEngine", "Vector3"),
               FIELD_ATTRIBUTE_ASSEMBLY, DUMPER_ATTR_DONT_CARE);
 
-      for (il2cpp::field_info_t* flt : floats) {
-        float value = *(float*)(projectile + flt->offset());
-
-        if (value == unity::time::get_fixed_time()) {
-          DUMP_MEMBER_BY_X(launchTime, flt->offset());
-        }
+      std::map<uint32_t, unity::vector3_t> sentinels;
+      int si = 0;
+      for (il2cpp::field_info_t* v : internal_vectors) {
+        unity::vector3_t s(1000.f + si, 2000.f + si, 3000.f + si);
+        sentinels[v->offset()] = s;
+        *(unity::vector3_t*)(projectile + v->offset()) = s;
+        si++;
       }
 
+      seh_call_initialize_velocity(projectile_initialize_velocity, projectile,
+                                   unity::vector3_t(1337.f, 1337.f, 1337.f));
+
+      uint32_t current_vel_offset = 0;
+      uint32_t current_pos_offset = 0;
       for (il2cpp::field_info_t* vector : internal_vectors) {
-        unity::vector3_t value =
-            *(unity::vector3_t*)(projectile + vector->offset());
+        uint32_t off = vector->offset();
+        unity::vector3_t value = *(unity::vector3_t*)(projectile + off);
 
-        if (value == unity::vector3_t(1337.f, 1337.f, 1337.f)) {
-          DUMP_MEMBER_BY_X(currentVelocity, vector->offset());
-        }
+        bool is_1337 =
+            (value.x == 1337.f && value.y == 1337.f && value.z == 1337.f);
+        bool still_sentinel = VECTOR_IS_EQUAL(value, sentinels[off], 0.01f);
+        bool is_zero = (value.x == 0.f && value.y == 0.f && value.z == 0.f);
 
-        else if (value == unity::vector3_t(420.f, 4200.f, 420.f)) {
-          DUMP_MEMBER_BY_X(currentPosition, vector->offset());
-        }
-      }
-
-      projectile_launch(projectile);
-
-      for (il2cpp::field_info_t* flt : floats) {
-        float value = *(float*)(projectile + flt->offset());
-
-        if (value == INFINITY) {
-          DUMP_MEMBER_BY_X(maxDistance, flt->offset());
-        }
-
-        else if (FLOAT_IS_EQUAL(value, 289.436f, 0.01f)) {
-          DUMP_MEMBER_BY_X(traveledDistance, flt->offset());
-        }
-
-        else if (FLOAT_IS_EQUAL(value, 0.125f, 0.001f)) {
-          DUMP_MEMBER_BY_X(traveledTime, flt->offset());
-        }
-
-        else if (FLOAT_IS_EQUAL(value, 0.09375f, 0.001f)) {
-          DUMP_MEMBER_BY_X(previousTraveledTime, flt->offset());
+        if (is_1337 && !current_vel_offset) {
+          current_vel_offset = off;
+          DUMP_MEMBER_BY_X(currentVelocity, current_vel_offset);
+        } else if (is_zero && !still_sentinel && !current_pos_offset) {
+          current_pos_offset = off;
+          DUMP_MEMBER_BY_X(currentPosition, current_pos_offset);
         }
       }
 
-      for (il2cpp::field_info_t* vector : vectors) {
-        unity::vector3_t value =
-            *(unity::vector3_t*)(projectile + vector->offset());
-
-        if (VECTOR_IS_EQUAL(value, unity::vector3_t(420.f, 4200.f, 420.f),
-                            0.01)) {
-          DUMP_MEMBER_BY_X(sentPosition, vector->offset());
-        }
-
-        else if (VECTOR_IS_EQUAL(value,
-                                 unity::vector3_t(545.344f, 4325.31f, 545.344f),
-                                 0.01f)) {
-          DUMP_MEMBER_BY_X(previousPosition, vector->offset());
-        }
-
-        else if (VECTOR_IS_EQUAL(value,
-                                 unity::vector3_t(1337.f, 1336.08f, 1337.f),
-                                 0.01f)) {
-          DUMP_MEMBER_BY_X(previousVelocity, vector->offset());
-        }
-      }
-
-      SET_ALL_FIELDS_OF_TYPE_TO_VALUE(
-          projectile, DUMPER_TYPE_NAMESPACE("System", "Single"), float, 0.f);
-
-      projectile_on_disable(projectile);
-
-      for (il2cpp::field_info_t* flt : floats) {
-        float value = *(float*)(projectile + flt->offset());
-
-        if (FLOAT_IS_EQUAL(value, 1.f, 0.01f)) {
-          DUMP_MEMBER_BY_X(integrity, flt->offset());
-        }
+      std::vector<il2cpp::field_info_t*> private_vectors =
+          il2cpp::get_fields_of_type(
+              dumper_klass, DUMPER_TYPE_NAMESPACE("UnityEngine", "Vector3"),
+              FIELD_ATTRIBUTE_PRIVATE, DUMPER_ATTR_DONT_CARE);
+      std::sort(private_vectors.begin(), private_vectors.end(),
+                [](il2cpp::field_info_t* a, il2cpp::field_info_t* b) {
+                  return a->offset() < b->offset();
+                });
+      if (private_vectors.size() >= 3) {
+        DUMP_MEMBER_BY_X(sentPosition, private_vectors[0]->offset());
+        DUMP_MEMBER_BY_X(previousPosition, private_vectors[1]->offset());
+        DUMP_MEMBER_BY_X(previousVelocity, private_vectors[2]->offset());
       }
     }
   }
@@ -2480,16 +2424,23 @@ void dumper::produce() {
           FILT_N(DUMPER_METHOD(DUMPER_CLASS("Projectile"), "Update"), 2),
           DUMPER_METHOD(DUMPER_CLASS("ScaleRenderer"), "SetScale"));
 
-  DUMP_METHOD_BY_INFO_PTR(SetEffectScale, projectile_set_effect_scale);
+  if (projectile_set_effect_scale) {
+    DUMP_METHOD_BY_INFO_PTR(SetEffectScale, projectile_set_effect_scale);
+  }
 
   il2cpp::method_info_t* projectile_update_velocity =
-      SEARCH_FOR_METHOD_WITH_RETTYPE_PARAM_TYPES(
-          FILT_I(DUMPER_METHOD(DUMPER_CLASS("Projectile"), "Update"),
-                 projectile_set_effect_scale->get_fn_ptr<uint64_t>(), 1),
-          DUMPER_TYPE_NAMESPACE("System", "Void"), METHOD_ATTRIBUTE_PRIVATE,
-          DUMPER_ATTR_DONT_CARE, DUMPER_TYPE_NAMESPACE("System", "Single"));
+      projectile_set_effect_scale
+          ? SEARCH_FOR_METHOD_WITH_RETTYPE_PARAM_TYPES(
+                FILT_I(DUMPER_METHOD(DUMPER_CLASS("Projectile"), "Update"),
+                       projectile_set_effect_scale->get_fn_ptr<uint64_t>(), 1),
+                DUMPER_TYPE_NAMESPACE("System", "Void"),
+                METHOD_ATTRIBUTE_PRIVATE, DUMPER_ATTR_DONT_CARE,
+                DUMPER_TYPE_NAMESPACE("System", "Single"))
+          : nullptr;
 
-  DUMP_METHOD_BY_INFO_PTR(UpdateVelocity, projectile_update_velocity);
+  if (projectile_update_velocity) {
+    DUMP_METHOD_BY_INFO_PTR(UpdateVelocity, projectile_update_velocity);
+  }
 
   il2cpp::il2cpp_type_t* param_types[] = {
       DUMPER_TYPE_NAMESPACE("UnityEngine", "Behaviour"),
@@ -2505,21 +2456,29 @@ void dumper::produce() {
           METHOD_ATTRIBUTE_STATIC, param_types, _countof(param_types));
 
   il2cpp::method_info_t* projectile_retire =
-      il2cpp::get_method_containing_function(
-          FILT_N(DUMPER_METHOD(DUMPER_CLASS("Projectile"), "Update"), 2),
-          invoke_handler_invoke->get_fn_ptr<uint64_t>());
+      invoke_handler_invoke
+          ? il2cpp::get_method_containing_function(
+                FILT_N(DUMPER_METHOD(DUMPER_CLASS("Projectile"), "Update"), 2),
+                invoke_handler_invoke->get_fn_ptr<uint64_t>())
+          : nullptr;
 
-  DUMP_METHOD_BY_INFO_PTR(Retire, projectile_retire);
+  if (projectile_retire) {
+    DUMP_METHOD_BY_INFO_PTR(Retire, projectile_retire);
+  }
 
   il2cpp::method_info_t* projectile_do_hit =
-      SEARCH_FOR_METHOD_WITH_RETTYPE_PARAM_TYPES_SIZE(
-          FILT_N(DUMPER_METHOD(DUMPER_CLASS("Projectile"), "Update"), 5), 0,
-          DUMPER_TYPE_NAMESPACE("System", "Boolean"), METHOD_ATTRIBUTE_PRIVATE,
-          DUMPER_ATTR_DONT_CARE, hit_test_class->type(),
-          DUMPER_TYPE_NAMESPACE("UnityEngine", "Vector3"),
-          DUMPER_TYPE_NAMESPACE("UnityEngine", "Vector3"));
+      hit_test_class
+          ? SEARCH_FOR_METHOD_WITH_RETTYPE_PARAM_TYPES_SIZE(
+                FILT_N(DUMPER_METHOD(DUMPER_CLASS("Projectile"), "Update"), 5), 0,
+                DUMPER_TYPE_NAMESPACE("System", "Boolean"), METHOD_ATTRIBUTE_PRIVATE,
+                DUMPER_ATTR_DONT_CARE, hit_test_class->type(),
+                DUMPER_TYPE_NAMESPACE("UnityEngine", "Vector3"),
+                DUMPER_TYPE_NAMESPACE("UnityEngine", "Vector3"))
+          : nullptr;
 
-  DUMP_METHOD_BY_INFO_PTR(DoHit, projectile_do_hit);
+  if (projectile_do_hit) {
+    DUMP_METHOD_BY_INFO_PTR(DoHit, projectile_do_hit);
+  }
 
   projectile_do_hit_method = projectile_do_hit;
   DUMPER_CLASS_END;
@@ -2538,7 +2497,7 @@ void dumper::produce() {
   DUMPER_SECTION("Functions");
   {
     auto _ha = DUMPER_CLASS("HitArea");
-    if (_ha) {
+    if (_ha && projectile_do_hit_method) {
       DUMP_METHOD_BY_RETURN_TYPE_ATTRS(
           get_boneArea, FILT(projectile_do_hit_method->get_fn_ptr<uint64_t>()),
           _ha, 0, METHOD_ATTRIBUTE_PUBLIC, DUMPER_ATTR_DONT_CARE);
@@ -2635,11 +2594,10 @@ void dumper::produce() {
 
       if (player_inventory_initialize) {
         unity::game_object_t* game_object = unity::game_object_t::create(L"");
-        game_object->add_component(dumper_klass->type());
+        uint64_t player_inventory = game_object->add_component(dumper_klass->type());
         game_object->add_component(DUMPER_TYPE("PlayerLoot"));
 
-        if (uint64_t player_inventory =
-                game_object->get_component(dumper_klass->type())) {
+        if (player_inventory) {
           player_inventory_initialize(player_inventory, nullptr);
 
           std::vector<il2cpp::field_info_t*> fields =
@@ -3794,10 +3752,9 @@ void dumper::produce() {
 
     if (held_entity_add_punch) {
       unity::game_object_t* game_object = unity::game_object_t::create(L"");
-      game_object->add_component(held_entity_class->type());
+      uint64_t held_entity = game_object->add_component(held_entity_class->type());
 
-      if (uint64_t held_entity =
-              game_object->get_component(held_entity_class->type())) {
+      if (held_entity) {
         held_entity_add_punch(held_entity,
                               unity::vector3_t(1337.f, 1337.f, 1337.f), 420.f);
 

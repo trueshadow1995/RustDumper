@@ -1,14 +1,14 @@
 #pragma once
 #include "il2cpp_lib.hpp"
 
-// Forward declarations for internal helpers used by macros and produce bodies
+// foward decs for internal helper functions
 const char *format_string(const char *fmt, ...);
 const char *format_method(il2cpp::method_info_t *method);
 il2cpp::il2cpp_class_t *get_outer_class(il2cpp::il2cpp_class_t *klass);
 il2cpp::il2cpp_class_t *get_inner_static_class(il2cpp::il2cpp_class_t *klass);
 void dump_fn_to_file(const char *label, uint8_t *address);
 
-// ---- Search helpers ----
+// ---- Search helpers 
 
 #define SEARCH_FOR_CLASS_BY_FIELD_COUNT(field_ct, equality, ...)               \
   [=]() -> il2cpp::il2cpp_class_t * {                                          \
@@ -89,7 +89,7 @@ void dump_fn_to_file(const char *label, uint8_t *address);
   il2cpp::get_virtual_method_by_return_type_and_param_types(                   \
       filter, dumper_klass, ret_type, wanted_vis, wanted_flags, nullptr, 0);
 
-// ---- Core dumper aliases ----
+// ---- Core dumper aliases
 
 #define DUMPER_VIS_DONT_CARE 0
 #define DUMPER_ATTR_DONT_CARE 0
@@ -133,24 +133,37 @@ void dump_fn_to_file(const char *label, uint8_t *address);
 
 #define DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE(klass_name, namespaze)          \
   {                                                                            \
+    const char *_dumper_class_name = klass_name;                               \
     il2cpp::il2cpp_class_t *dumper_klass =                                     \
         il2cpp::get_class_by_name(klass_name, namespaze);                      \
-    DUMPER_CLASS_HEADER(klass_name);
+    if (!dumper_klass)                                                         \
+      dumper::write_to_log("[WARNING] Class not found: %s\n", klass_name);     \
+    if (dumper_klass) {                                                        \
+      dumper::write_to_log("[BEGIN] %s\n", _dumper_class_name);                \
+      DUMPER_CLASS_HEADER(klass_name);
 
 #define DUMPER_CLASS_BEGIN_FROM_NAME(klass_name)                               \
   DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE(klass_name, "")
 
 #define DUMPER_CLASS_BEGIN_FROM_PTR(dump_name, klass_ptr)                      \
   {                                                                            \
+    const char *_dumper_class_name = dump_name;                                \
     il2cpp::il2cpp_class_t *dumper_klass = klass_ptr;                          \
-    dumper::write_to_file("// obf name: %s::%s\n", dumper_klass->namespaze(),  \
-                          dumper_klass->name());                               \
-    DUMPER_PTR_CLASS_NAME(dump_name, klass_ptr);                               \
-    DUMPER_CLASS_HEADER(dump_name);
+    if (!dumper_klass)                                                         \
+      dumper::write_to_log("[WARNING] Class ptr is null for: %s\n",            \
+                           dump_name);                                         \
+    if (dumper_klass) {                                                        \
+      dumper::write_to_log("[BEGIN] %s\n", _dumper_class_name);                \
+      dumper::write_to_file("// obf name: %s::%s\n",                           \
+                            dumper_klass->namespaze(), dumper_klass->name());  \
+      DUMPER_PTR_CLASS_NAME(dump_name, klass_ptr);                             \
+      DUMPER_CLASS_HEADER(dump_name);
 
 #define DUMPER_CLASS_END                                                       \
   dumper::write_to_file("}\n\n");                                              \
   dumper::flush();                                                             \
+  dumper::write_to_log("[END] %s\n", _dumper_class_name);                      \
+  } /* if (dumper_klass) */                                                    \
   }
 
 #define DUMP_CLASS_NAME(dump_name, klass_ptr)                                  \
@@ -158,7 +171,7 @@ void dump_fn_to_file(const char *label, uint8_t *address);
                         klass_ptr->name());                                    \
   DUMPER_PTR_CLASS_NAME(dump_name, klass_ptr);
 
-// ---- Member dump helpers ----
+// ---- Member dump helpers 
 
 #define DUMP_MEMBER_BY_X(NAME, X)                                              \
   uint64_t NAME##_Offset = X;                                                  \
@@ -222,7 +235,7 @@ void dump_fn_to_file(const char *label, uint8_t *address);
     }                                                                          \
   }()
 
-// ---- Method dump helpers ----
+// ---- Method dump helpers 
 
 #define DUMP_METHOD_BY_RETURN_TYPE_STR(NAME, filter, ret_type, param_ct)       \
   DUMP_MEMBER_BY_X(NAME,                                                       \
@@ -299,7 +312,7 @@ void dump_fn_to_file(const char *label, uint8_t *address);
       "\tconstexpr const static size_t %s_vtableoff = 0x%x;\n", #NAME,         \
       virtual_method.offset)
 
-// ---- Misc ----
+// ---- Misc 
 
 #define DUMP_ENCRYPTED_MEMBER(NAME, FIELD)                                     \
   {                                                                            \
