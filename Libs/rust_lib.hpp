@@ -48,11 +48,22 @@ namespace rust {
 			}
 		};
 
-		inline command*( *console_system_index_client_find )( system_c::string_t* ) = nullptr;
+		// HashedString is a 16-byte value type; on x64 structs >8 bytes pass by ptr.
+		inline command*( *console_system_index_client_find )( void* hashed_string ) = nullptr;
+		// .ctor(string) for HashedString — fills hash fields from the managed string.
+		inline void ( *hashed_string_ctor )( void* self, system_c::string_t* str ) = nullptr;
 
 		class client {
 		public:
 			static command* find( system_c::string_t* str ) {
+				if ( !console_system_index_client_find )
+					return nullptr;
+				if ( hashed_string_ctor ) {
+					uint8_t hs[16] = {};
+					hashed_string_ctor( hs, str );
+					return console_system_index_client_find( hs );
+				}
+				// Fallback: pass string directly (old behaviour, may not find commands)
 				return console_system_index_client_find( str );
 			}
 		};

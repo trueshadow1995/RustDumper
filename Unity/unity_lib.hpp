@@ -46,7 +46,7 @@ public:
     return *(T *)(_items + 0x20 + (index * sizeof(T)));
   }
 };
-} // namespace system_c
+} 
 
 namespace unity {
 struct vector2_t {
@@ -86,15 +86,13 @@ class component_t;
 class transform_t;
 class camera_t;
 
-// Read the native engine handle (m_CachedPtr) from any managed Unity Object.
+
 static inline uintptr_t unity_native_handle(const void *managed) {
   if (!is_valid_ptr(managed)) return 0;
   return *(const uintptr_t *)((const uint8_t *)managed + 0x10);
 }
 
-// SEH helpers for calling Unity icalls from member functions.
-// __try can't live in a function with C++ object unwinding, so these
-// are file-static non-member wrappers.
+//Seh shit 
 static inline uintptr_t seh_u_u(uintptr_t (*fn)(uintptr_t), uintptr_t a) {
   __try { return fn(a); } __except (EXCEPTION_EXECUTE_HANDLER) { return 0; }
 }
@@ -109,9 +107,6 @@ static inline void seh_gp(void (*fn)(uintptr_t, void *),
 
 class game_object_t {
 public:
-  // On Unity 6, Internal_CreateGameObject and Internal_AddComponentWithType are
-  // [FreeFunction]s, not icalls — resolve_icall() returns null for them.
-  // Use get_method_by_name (SEH-guarded) with an RVA fallback.
   static il2cpp::method_info_t *resolve_gobj_method(const char *name, int argc) {
     __try {
       il2cpp::il2cpp_class_t *go =
@@ -160,8 +155,6 @@ public:
     return (game_object_t *)go;
   }
 
-  // Returns the new component directly — do NOT call get_component after this.
-  // GetComponent_Injected hard-faults from injected-thread context on Unity 6.
   uint64_t add_component(il2cpp::il2cpp_type_t *type) {
     static void *(*add_component_f)(game_object_t *,
                                     il2cpp::il2cpp_object_t *, void *) =
@@ -174,7 +167,7 @@ public:
 
   uintptr_t native_handle() const { return unity_native_handle(this); }
 
-  // Unity 6: get_transform() icall renamed to _Injected, takes native handle.
+
   transform_t *get_transform() {
     static auto gt_f = (uintptr_t (*)(uintptr_t))il2cpp::resolve_icall(
         "UnityEngine.GameObject::get_transform_Injected(System.IntPtr)");
@@ -211,7 +204,7 @@ class transform_t {
 public:
   uintptr_t native_handle() const { return unity_native_handle(this); }
 
-  // Unity 6: set_position_Injected takes native IntPtr + Vector3& by ref.
+
   void set_position(vector3_t position) {
     static auto sp_f = (void (*)(uintptr_t, void *))il2cpp::resolve_icall(
         "UnityEngine.Transform::set_position_Injected(System.IntPtr,"
@@ -252,4 +245,4 @@ public:
     return get_fixed_time_f();
   }
 };
-} // namespace unity
+} 

@@ -18,7 +18,10 @@ void dumper::produce_unity() {
     DUMP_METHOD_BY_NAME_STR_ARG_CT(DontDestroyOnLoad, "DontDestroyOnLoad", 1);
     DUMP_METHOD_BY_NAME_STR_ARG_CT(FindObjectFromInstanceID,
                                    "FindObjectFromInstanceID", 1);
-    DUMP_METHOD_BY_NAME_STR_ARG_CT(GetName, "GetName", 1);
+    DUMP_METHOD_BY_ICALL(
+        GetName,
+        "UnityEngine.Object::GetName_Injected(System.IntPtr,"
+        "UnityEngine.Bindings.ManagedSpanWrapper&)");
     DUMP_METHOD_BY_NAME_STR_ARG_CT(get_hideFlags, "get_hideFlags", 0);
     DUMP_METHOD_BY_NAME_STR_ARG_CT(set_hideFlags, "set_hideFlags", 1);
     DUMPER_CLASS_END;
@@ -90,15 +93,9 @@ void dumper::produce_unity() {
                          "UnityEngine.Transform::TransformVector_Injected("
                          "UnityEngine.Vector3&,UnityEngine.Vector3&)");
     DUMP_METHOD_BY_NAME_STR_ARG_CT(get_childCount, "get_childCount", 0);
-    DUMP_METHOD_BY_ICALL(get_forward_Injected,
-                         "UnityEngine.Transform::get_forward_Injected("
-                         "UnityEngine.Vector3&)");
-    DUMP_METHOD_BY_ICALL(get_right_Injected,
-                         "UnityEngine.Transform::get_right_Injected("
-                         "UnityEngine.Vector3&)");
-    DUMP_METHOD_BY_ICALL(get_up_Injected,
-                         "UnityEngine.Transform::get_up_Injected("
-                         "UnityEngine.Vector3&)");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_forward_Injected, "get_forward", 0);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_right_Injected, "get_right", 0);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(get_up_Injected, "get_up", 0);
     DUMP_METHOD_BY_ICALL(get_localPosition_Injected,
                          "UnityEngine.Transform::get_localPosition_Injected("
                          "UnityEngine.Vector3&)");
@@ -221,17 +218,15 @@ void dumper::produce_unity() {
     DUMP_METHOD_BY_NAME_STR_ARG_CT(MarkDynamicImpl, "MarkDynamicImpl", 0);
     DUMP_METHOD_BY_NAME_STR_ARG_CT(ClearImpl, "ClearImpl", 1);
     DUMP_METHOD_BY_NAME_STR_ARG_CT(set_subMeshCount, "set_subMeshCount", 1);
-    DUMP_METHOD_BY_ICALL(SetVertexBufferParamsFromPtr,
-                         "UnityEngine.Mesh::SetVertexBufferParamsFromPtr");
-    DUMP_METHOD_BY_ICALL(SetIndexBufferParams,
-                         "UnityEngine.Mesh::SetIndexBufferParams");
-    DUMP_METHOD_BY_ICALL(InternalSetVertexBufferData,
-                         "UnityEngine.Mesh::InternalSetVertexBufferData");
-    DUMP_METHOD_BY_ICALL(InternalSetIndexBufferData,
-                         "UnityEngine.Mesh::InternalSetIndexBufferData");
     DUMP_METHOD_BY_ICALL(
-        SetAllSubMeshesAtOnceFromNativeArray,
-        "UnityEngine.Mesh::SetAllSubMeshesAtOnceFromNativeArray");
+        SetVertexBufferParamsFromPtr,
+        "UnityEngine.Mesh::SetVertexBufferParamsFromArray_Injected(System."
+        "IntPtr,System.Int32,UnityEngine.Bindings.ManagedSpanWrapper&)");
+    DUMP_METHOD_BY_ICALL(
+        InternalSetVertexBufferData,
+        "UnityEngine.Mesh::InternalSetVertexBufferDataFromArray_Injected("
+        "System.IntPtr,System.Int32,System.Array,System.Int32,System.Int32,"
+        "System.Int32,System.Int32,UnityEngine.Rendering.MeshUpdateFlags)");
     DUMP_METHOD_BY_NAME_STR_ARG_CT(UploadMeshDataImpl, "UploadMeshDataImpl", 1);
     DUMPER_CLASS_END;
 
@@ -252,11 +247,15 @@ void dumper::produce_unity() {
 
     DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE("Texture2D", "UnityEngine");
     DUMPER_SECTION("Functions");
-    DUMP_METHOD_BY_NAME_STR_ARG_CT(ctor, ".ctor", 9);
-    DUMP_METHOD_BY_NAME_STR_ARG_CT(Internal_CreateImpl, "Internal_CreateImpl",
-                                   9);
-    DUMP_METHOD_BY_NAME_STR_ARG_CT(GetRawImageDataSize, "GetRawImageDataSize",
-                                   0);
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(ctor, ".ctor", 7);
+    DUMP_METHOD_BY_ICALL(Internal_CreateImpl,
+                         "UnityEngine.Texture2D::Internal_CreateImpl_Injected("
+                         "UnityEngine.Texture2D,System.Int32,System.Int32,"
+                         "System.Int32,UnityEngine.Experimental.Rendering."
+                         "GraphicsFormat,UnityEngine.TextureColorSpace,"
+                         "UnityEngine.Experimental.Rendering."
+                         "TextureCreationFlags,System.IntPtr,System.Boolean,"
+                         "UnityEngine.Bindings.ManagedSpanWrapper&)");
     DUMP_METHOD_BY_NAME_STR_ARG_CT(GetWritableImageData, "GetWritableImageData",
                                    1);
     DUMP_METHOD_BY_NAME_STR_ARG_CT(ApplyImpl, "ApplyImpl", 2);
@@ -286,11 +285,8 @@ void dumper::produce_unity() {
         "RenderBufferLoadAction,UnityEngine.Rendering.RenderBufferStoreAction,"
         "UnityEngine.Rendering.RenderBufferLoadAction,UnityEngine.Rendering."
         "RenderBufferStoreAction)");
-    DUMP_METHOD_BY_ICALL(
-        ClearRenderTarget_Injected,
-        "UnityEngine.Rendering.CommandBuffer::ClearRenderTarget_Injected("
-        "UnityEngine.Rendering.RTClearFlags,UnityEngine.Color&,System.Single,"
-        "System.UInt32)");
+    DUMP_METHOD_BY_NAME_STR_ARG_CT(ClearRenderTarget_Injected,
+                                    "ClearRenderTarget", 3);
     DUMP_METHOD_BY_ICALL(SetViewport_Injected,
                          "UnityEngine.Rendering.CommandBuffer::SetViewport_"
                          "Injected(UnityEngine.Rect&)");
@@ -364,8 +360,6 @@ void dumper::produce_unity() {
 
     DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE("AssetBundle", "UnityEngine");
     DUMPER_SECTION("Functions");
-    DUMP_METHOD_BY_ICALL(LoadFromMemory_Internal,
-                         "UnityEngine.AssetBundle::LoadFromMemory_Internal");
     DUMP_METHOD_BY_NAME_STR_ARG_CT(LoadFromFile_Internal,
                                    "LoadFromFile_Internal", 3);
     DUMP_METHOD_BY_NAME_STR_ARG_CT(LoadAsset_Internal, "LoadAsset_Internal", 2);
@@ -403,9 +397,11 @@ void dumper::produce_unity() {
 
     DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE("Gradient", "UnityEngine");
     DUMPER_SECTION("Functions");
-    DUMP_METHOD_BY_ICALL(SetKeys,
-                         "UnityEngine.Gradient::SetKeys(UnityEngine."
-                         "GradientColorKey[],UnityEngine.GradientAlphaKey[]");
+    DUMP_METHOD_BY_ICALL(
+        SetKeys,
+        "UnityEngine.Gradient::SetKeys_Injected(System.IntPtr,"
+        "UnityEngine.Bindings.ManagedSpanWrapper&,"
+        "UnityEngine.Bindings.ManagedSpanWrapper&)");
     DUMPER_CLASS_END;
 
     DUMPER_CLASS_BEGIN_FROM_NAME_NAMESPACE("Physics", "UnityEngine");
