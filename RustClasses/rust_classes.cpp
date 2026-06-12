@@ -1173,7 +1173,7 @@ void dumper::produce() {
   // Theory
   //  ModelState.Flag enum (OnPhone/HeadLook/HasParachute) no longer exists. ???
   //  ModelState is now a plain proto message with bool fields inside
-  //  PlayerTick. ?? Find it by walking PlayerTick's instance fields for the
+  //  PlayerTick. ?? try to find it by walking PlayerTick's instance fields for the
   //  obfuscated reference-type class (not InputMessage/NetworkableId) with 2+
   //  bool fields.
   il2cpp::il2cpp_class_t *model_state_class = nullptr;
@@ -1252,11 +1252,11 @@ void dumper::produce() {
 
   if (!hit_info_class) {
     write_to_log(
-        "[FALLBACK] Trying to find HitInfo through BasePlayer methods\n");
+        "[Attempt2] Trying to find HitInfo through BasePlayer methods\n");
     il2cpp::il2cpp_class_t *base_player_class = DUMPER_CLASS("BasePlayer");
     if (base_player_class) {
       write_to_log(
-          "[FALLBACK] BasePlayer class found, searching for method with "
+          "[Attempt2] BasePlayer class found, searching for method with "
           "HitInfo parameter\n");
 
       void *method_iter = nullptr;
@@ -1291,7 +1291,7 @@ void dumper::produce() {
         if (vector3_count >= 4) {
           hit_info_class = param_class;
           write_to_log(
-              "[FALLBACK] Found HitInfo through BasePlayer.%s: %s (fields: %d, "
+              "[Attempt2] Found HitInfo through BasePlayer.%s: %s (fields: %d, "
               "vec3: %d)\n",
               method->name(), param_class->name(), field_count, vector3_count);
           break;
@@ -1300,17 +1300,17 @@ void dumper::produce() {
 
       if (!hit_info_class) {
         write_to_log(
-            "[FALLBACK] ERROR: No method with HitInfo-like parameter found in "
+            "[Attempt2] ERROR: No method with HitInfo-like parameter found in "
             "BasePlayer\n");
       }
     } else {
-      write_to_log("[FALLBACK] ERROR: BasePlayer class not found\n");
+      write_to_log("[Attempt2] ERROR: BasePlayer class not found\n");
     }
   }
 
   if (!hit_info_class) {
     write_to_log(
-        "[FALLBACK] Trying to find HitInfo through BaseCombatEntity\n");
+        "[Attempt2] Trying to find HitInfo through BaseCombatEntity\n");
     il2cpp::il2cpp_class_t *base_combat_entity =
         DUMPER_CLASS("BaseCombatEntity");
     if (base_combat_entity) {
@@ -1325,7 +1325,7 @@ void dumper::produce() {
         if (param_type) {
           hit_info_class = param_type->klass();
           write_to_log(
-              "[FALLBACK] Found HitInfo through BaseCombatEntity.%s: %s\n",
+              "[Attempt2] Found HitInfo through BaseCombatEntity.%s: %s\n",
               method->name(), hit_info_class->name());
         }
       }
@@ -1333,16 +1333,16 @@ void dumper::produce() {
   }
 
   if (!hit_info_class) {
-    write_to_log("[FALLBACK] Trying direct HitInfo class lookup\n");
+    write_to_log("[Attempt2] Trying direct HitInfo class lookup\n");
     hit_info_class = DUMPER_CLASS("HitInfo");
     if (hit_info_class) {
-      write_to_log("[FALLBACK] Found HitInfo through direct lookup\n");
+      write_to_log("[Attempt2] Found HitInfo through direct lookup\n");
     }
   }
 
   if (!hit_info_class) {
     write_to_log(
-        "[FALLBACK] Searching Assembly-CSharp for HitInfo by structure\n");
+        "[Attempt2] Searching Assembly-CSharp for HitInfo by structure\n");
     il2cpp::il2cpp_domain_t *domain = il2cpp::domain_get();
     if (domain) {
       size_t assembly_count = 0;
@@ -1361,7 +1361,7 @@ void dumper::produce() {
           continue;
 
         write_to_log(
-            "[FALLBACK] Scanning %zu classes in Assembly-CSharp for classes "
+            "[Attempt2] Scanning %zu classes in Assembly-CSharp for classes "
             "with Single[] field\n",
             image->class_count());
 
@@ -1400,13 +1400,13 @@ void dumper::produce() {
           if (vector3_count >= 2 && has_raycast_hit && field_count >= 8 &&
               field_count <= 80) {
             write_to_log(
-                "[FALLBACK] HitInfo candidate: %s (fields: %d, vec3: %d)\n",
+                "[Attempt2] HitInfo candidate: %s (fields: %d, vec3: %d)\n",
                 class_name, field_count, vector3_count);
             candidates.push_back(klass);
           }
         }
 
-        write_to_log("[FALLBACK] Found %zu HitInfo candidates\n",
+        write_to_log("[Attempt2] Found %zu HitInfo candidates\n",
                      candidates.size());
 
         // candidates already have BaseEntity + 3+ Vector3 fields.
@@ -1426,11 +1426,11 @@ void dumper::produce() {
         }
 
         if (hit_info_class) {
-          write_to_log("[FALLBACK] Selected HitInfo: %s (fields: %d)\n",
+          write_to_log("[Attempt2] Selected HitInfo: %s (fields: %d)\n",
                        hit_info_class->name(), hit_info_class->field_count());
           break;
         } else {
-          write_to_log("[FALLBACK] No suitable HitInfo candidates found\n");
+          write_to_log("[Attempt2] No suitable HitInfo candidates found\n");
         }
       }
     }
@@ -1783,26 +1783,27 @@ void dumper::produce() {
   // attempt to find EncryptedValue through BasePlayer fields
   if (!encrypted_value_class) {
     write_to_log(
-        "[FALLBACK] Trying to find EncryptedValue through BasePlayer\n");
+        "[Attempt2] Trying to find EncryptedValue through BasePlayer\n");
+    typedef bool (*fn_is_vt)(void *);
+    fn_is_vt il2cpp_class_is_valuetype =
+        (fn_is_vt)GetProcAddress((HMODULE)game_base,
+                                 "il2cpp_class_is_valuetype");
     il2cpp::il2cpp_class_t *base_player = DUMPER_CLASS("BasePlayer");
-    if (base_player) {
+    if (base_player && il2cpp_class_is_valuetype) {
       void *iter = nullptr;
       while (il2cpp::field_info_t *field = base_player->fields(&iter)) {
         const char *type_name = field->type()->name();
-        if (type_name && strstr(type_name, "<System.UInt64>")) {
-          il2cpp::il2cpp_class_t *fk = field->type()->klass();
-          if (!fk)
-            continue;
-          // EncryptedValue<T> is a struct; skip reference types like
-          // Dictionary/List
-          Il2CppClass *native_fk = (Il2CppClass *)fk;
-          if (native_fk->byval_arg.type != IL2CPP_TYPE_VALUETYPE)
-            continue;
-          encrypted_value_class = fk;
-          write_to_log(
-              "[FALLBACK] Found EncryptedValue through BasePlayer fields\n");
-          break;
-        }
+        if (!type_name || !strstr(type_name, "<System.UInt64>"))
+          continue;
+        il2cpp::il2cpp_class_t *fk = field->type()->klass();
+        if (!fk)
+          continue;
+        if (!il2cpp_class_is_valuetype(fk))
+          continue;
+        encrypted_value_class = fk;
+        write_to_log(
+            "[Attempt2] Found EncryptedValue through BasePlayer fields\n");
+        break;
       }
     }
   }
@@ -1827,7 +1828,7 @@ void dumper::produce() {
   } else {
     // Attempt to find ConVar.Client through console commands
     write_to_log(
-        "[FALLBACK] Trying to find ConVar.Client through console system\n");
+        "[Attempt2] Trying to find ConVar.Client through console system\n");
     rust::console_system::command *client_connect_cmd =
         rust::console_system::client::find(
             system_c::string_t::create_string(L"client.connect"));
@@ -1838,7 +1839,7 @@ void dumper::produce() {
         if (method) {
           convar_client_class = method->klass();
           write_to_log(
-              "[FALLBACK] Found ConVar.Client through console command\n");
+              "[Attempt2] Found ConVar.Client through console command\n");
         }
       }
     }
@@ -2223,7 +2224,7 @@ void dumper::produce() {
 
   DUMPER_CLASS_BEGIN_FROM_NAME("DamageProperties");
   DUMPER_SECTION("Offsets");
-  DUMP_MEMBER_BY_NAME(fallback);
+  DUMP_MEMBER_BY_NAME(Attempt2);
   DUMP_MEMBER_BY_NAME(bones);
   DUMPER_CLASS_END;
 
@@ -2776,26 +2777,100 @@ void dumper::produce() {
         item_container_class, searchBuf, FIELD_ATTRIBUTE_PUBLIC,
         DUMPER_ATTR_DONT_CARE);
 
-    //  walk PlayerInventory ItemContainer-typed fields
+    // Walk PlayerInventory ItemContainer-typed fields.
+    // Primary: read live container flags to distinguish belt/wear/main.
+    // Attempt 2:positional (belt=lowest, wear=middle, main=highest).
     {
-      std::vector<il2cpp::field_info_t *> fields = il2cpp::get_fields_of_type(
-          dumper_klass, item_container_class->type(), DUMPER_ATTR_DONT_CARE,
-          DUMPER_ATTR_DONT_CARE);
-      std::sort(fields.begin(), fields.end(),
+      uint32_t belt_off = 0, main_off = 0, wear_off = 0;
+
+      std::vector<il2cpp::field_info_t *> container_fields =
+          il2cpp::get_fields_of_type(dumper_klass, item_container_class->type(),
+                                     FIELD_ATTRIBUTE_PUBLIC,
+                                     DUMPER_ATTR_DONT_CARE);
+      std::sort(container_fields.begin(), container_fields.end(),
                 [](il2cpp::field_info_t *a, il2cpp::field_info_t *b) {
                   return a->offset() < b->offset();
                 });
       write_to_log("[PlayerInventory] %zu ItemContainer fields\n",
-                   fields.size());
-      if (fields.size() >= 1) {
-        DUMP_MEMBER_BY_X(containerWear, fields[0]->offset());
+                   container_fields.size());
+
+      if (flag && container_fields.size() >= 3) {
+        // Find LocalPlayer through PetCommandList/PetCommandDesc
+        il2cpp::il2cpp_class_t *pi_lp_class = nullptr;
+        {
+          il2cpp::il2cpp_class_t *pet_desc =
+              DUMPER_CLASS("PetCommandList/PetCommandDesc");
+          if (pet_desc) {
+            auto *lp_static = il2cpp::search_for_class_by_field_types(
+                pet_desc->type(), 0, FIELD_ATTRIBUTE_PUBLIC,
+                FIELD_ATTRIBUTE_STATIC);
+            pi_lp_class = get_outer_class(lp_static);
+          }
+        }
+        il2cpp::il2cpp_class_t *pi_bp_class = DUMPER_CLASS("BasePlayer");
+        uint64_t live_player = 0;
+        if (pi_lp_class && pi_bp_class) {
+          il2cpp::method_info_t *get_entity_m =
+              il2cpp::get_method_by_return_type_attrs(
+                  NO_FILT, pi_lp_class, pi_bp_class,
+                  METHOD_ATTRIBUTE_STATIC, METHOD_ATTRIBUTE_PUBLIC, 0);
+          if (get_entity_m) {
+            auto fn = (uint64_t(*)())get_entity_m->get_fn_ptr<uint64_t>();
+            if (fn) live_player = fn();
+          }
+        }
+        write_to_log("[PlayerInventory] live_player=0x%llx\n",
+                     (unsigned long long)live_player);
+
+        if (live_player && pi_bp_class) {
+          uint64_t player_inventory = 0;
+          for (il2cpp::il2cpp_class_t *c = pi_bp_class;
+               c && !player_inventory; c = c->parent()) {
+            void *iter = nullptr;
+            while (il2cpp::field_info_t *f = c->fields(&iter)) {
+              if (!f->type()) continue;
+              if (f->type()->klass() == dumper_klass) {
+                player_inventory = *(uint64_t *)(live_player + f->offset());
+                break;
+              }
+            }
+          }
+          write_to_log("[PlayerInventory] player_inventory=0x%llx\n",
+                       (unsigned long long)player_inventory);
+
+          if (player_inventory) {
+            for (auto *field : container_fields) {
+              uint64_t container =
+                  *(uint64_t *)(player_inventory + field->offset());
+              if (!container) continue;
+              int cflags = *(int *)(container + flag->offset());
+              write_to_log("[PlayerInventory] +0x%X flags=0x%X\n",
+                           field->offset(), (uint32_t)cflags);
+              if (cflags & rust::item_container::e_item_container_flag::belt)
+                belt_off = field->offset();
+              else if (cflags &
+                       rust::item_container::e_item_container_flag::clothing)
+                wear_off = field->offset();
+              else
+                main_off = field->offset();
+            }
+          }
+        }
       }
-      if (fields.size() >= 2) {
-        DUMP_MEMBER_BY_X(containerMain, fields[1]->offset());
+
+      // Attempt2: belt=lowest offset, wear=middle, main=highest
+      if ((!belt_off || !main_off || !wear_off) && container_fields.size() >= 3) {
+        write_to_log("[PlayerInventory] positional Attempt2 +0x%X +0x%X +0x%X\n",
+                     container_fields[0]->offset(), container_fields[1]->offset(),
+                     container_fields[2]->offset());
+        if (!belt_off) belt_off = container_fields[0]->offset();
+        if (!wear_off) wear_off = container_fields[1]->offset();
+        if (!main_off) main_off = container_fields[2]->offset();
       }
-      if (fields.size() >= 3) {
-        DUMP_MEMBER_BY_X(containerBelt, fields[2]->offset());
-      }
+
+      if (belt_off) { DUMP_MEMBER_BY_X(containerBelt, belt_off); }
+      if (main_off) { DUMP_MEMBER_BY_X(containerMain, main_off); }
+      if (wear_off) { DUMP_MEMBER_BY_X(containerWear, wear_off); }
     }
 
     DUMP_MEMBER_BY_FIELD_TYPE_CLASS(loot, DUMPER_CLASS("PlayerLoot"));
@@ -2985,11 +3060,6 @@ void dumper::produce() {
     DUMP_MEMBER_BY_FIELD_TYPE_CLASS_CONTAINS(
         lastSentTickTime,
         format_string("%s<System.Single>", encrypted_value_class->name()));
-    il2cpp::field_info_t *view_matrix_field =
-        il2cpp::get_field_by_name(dumper_klass, "viewMatrix");
-    if (view_matrix_field) {
-      DUMP_MEMBER_BY_X(viewMatrix, view_matrix_field->offset(dumper_klass));
-    }
     DUMP_MEMBER_BY_FIELD_TYPE_CLASS(
         CurrentTutorialAllowance,
         DUMPER_CLASS("BasePlayer/TutorialItemAllowance"));
@@ -3720,12 +3790,14 @@ void dumper::produce() {
     DUMPER_CLASS_BEGIN_FROM_PTR("ConVar_Graphics_Static",
                                 convar_graphics_static_class);
     DUMPER_SECTION("Offsets");
-    il2cpp::field_info_t *fov = il2cpp::get_static_field_if_value_is<uint32_t>(
-        dumper_klass,
-        format_string("%s<System.Single>", encrypted_value_class->name()),
-        FIELD_ATTRIBUTE_PUBLIC, DUMPER_ATTR_DONT_CARE,
-        [](uint32_t value) { return value != 0; });
-    DUMP_MEMBER_BY_X(_fov, fov->offset());
+    if (encrypted_value_class) {
+      il2cpp::field_info_t *fov = il2cpp::get_static_field_if_value_is<uint32_t>(
+          dumper_klass,
+          format_string("%s<System.Single>", encrypted_value_class->name()),
+          FIELD_ATTRIBUTE_PUBLIC, DUMPER_ATTR_DONT_CARE,
+          [](uint32_t value) { return value != 0; });
+      if (fov) { DUMP_MEMBER_BY_X(_fov, fov->offset()); }
+    }
     DUMPER_SECTION("Functions");
     rust::console_system::command *fov_command =
         rust::console_system::client::find(
@@ -4886,30 +4958,47 @@ void dumper::produce() {
         if (player_model) {
           void (*player_model_update_local_velocity)(uint64_t, unity::vector3_t,
                                                      unity::transform_t *) =
-              (decltype(player_model_update_local_velocity))DUMPER_METHOD(
-                  dumper_klass, "UpdateLocalVelocity");
+              nullptr;
+          if (auto *_m = il2cpp::get_method_by_name(dumper_klass,
+                                                    "UpdateLocalVelocity"))
+            player_model_update_local_velocity =
+                (decltype(player_model_update_local_velocity))
+                    _m->get_fn_ptr<uint64_t>();
 
           if (player_model_update_local_velocity) {
             player_model_update_local_velocity(
                 player_model, unity::vector3_t(69.f, 69.f, 69.f), nullptr);
           }
 
-          std::vector<il2cpp::field_info_t *> vectors =
+          // Position: among internal Vector3 fields, the world position is the
+          // only one with map-coord magnitudes (100s-1000s). Velocities and
+          // local offsets stay small (<10).
+          std::vector<il2cpp::field_info_t *> internal_vectors =
+              il2cpp::get_fields_of_type(
+                  dumper_klass, DUMPER_TYPE_NAMESPACE("UnityEngine", "Vector3"),
+                  FIELD_ATTRIBUTE_ASSEMBLY, DUMPER_ATTR_DONT_CARE);
+          for (il2cpp::field_info_t *vec : internal_vectors) {
+            unity::vector3_t value =
+                *(unity::vector3_t *)(player_model + vec->offset());
+            if (value.magnitude() > 10.f) {
+              DUMP_MEMBER_BY_X(position, vec->offset());
+              // viewMatrix is the private Vector3 immediately after position
+              DUMP_MEMBER_BY_NEAR_OFFSET(viewMatrix, vec->offset() + 0xC);
+              break;
+            }
+          }
+
+          // newVelocity: sentinel (69,69,69) injected by UpdateLocalVelocity
+          std::vector<il2cpp::field_info_t *> all_vectors =
               il2cpp::get_fields_of_type(
                   dumper_klass, DUMPER_TYPE_NAMESPACE("UnityEngine", "Vector3"),
                   DUMPER_ATTR_DONT_CARE, DUMPER_ATTR_DONT_CARE);
-
-          for (il2cpp::field_info_t *vector : vectors) {
+          for (il2cpp::field_info_t *vec : all_vectors) {
             unity::vector3_t value =
-                *(unity::vector3_t *)(player_model + vector->offset());
-
-            if (abs(value.distance(
-                        local_player->get_transform()->get_position()) < 1.f)) {
-              DUMP_MEMBER_BY_X(position, vector->offset());
-            }
-
-            else if (value == unity::vector3_t(69.f, 69.f, 69.f)) {
-              DUMP_MEMBER_BY_X(newVelocity, vector->offset());
+                *(unity::vector3_t *)(player_model + vec->offset());
+            if (value == unity::vector3_t(69.f, 69.f, 69.f)) {
+              DUMP_MEMBER_BY_X(newVelocity, vec->offset());
+              break;
             }
           }
         }
