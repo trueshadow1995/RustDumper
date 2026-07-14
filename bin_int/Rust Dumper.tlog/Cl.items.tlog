@@ -1,0 +1,13 @@
+C:\Users\phil_\OneDrive\Desktop\Projects\Rust_Dumper\rust-dumper-main\Rust_Dumper\src\dllmain.cpp;C:\Users\phil_\OneDrive\Desktop\Projects\Rust_Dumper\rust-dumper-main\Rust_Dumper\bin_int\dllmain.obj
+C:\Users\phil_\OneDrive\Desktop\Projects\Rust_Dumper\rust-dumper-main\Rust_Dumper\Dumper\dumper.cpp;C:\Users\phil_\OneDrive\Desktop\Projects\Rust_Dumper\rust-dumper-main\Rust_Dumper\bin_int\dumper.obj
+C:\Users\phil_\OneDrive\Desktop\Projects\Rust_Dumper\rust-dumper-main\Rust_Dumper\RustClasses\game_assembly.cpp;C:\Users\phil_\OneDrive\Desktop\Projects\Rust_Dumper\rust-dumper-main\Rust_Dumper\bin_int\game_assembly.obj
+C:\Users\phil_\OneDrive\Desktop\Projects\Rust_Dumper\rust-dumper-main\Rust_Dumper\RustClasses\rust_classes.cpp;C:\Users\phil_\OneDrive\Desktop\Projects\Rust_Dumper\rust-dumper-main\Rust_Dumper\bin_int\rust_classes.obj
+C:\Users\phil_\OneDrive\Desktop\Projects\Rust_Dumper\rust-dumper-main\Rust_Dumper\Unity\unity_classes.cpp;C:\Users\phil_\OneDrive\Desktop\Projects\Rust_Dumper\rust-dumper-main\Rust_Dumper\bin_int\unity_classes.obj
+C:\Users\phil_\OneDrive\Desktop\Projects\Rust_Dumper\rust-dumper-main\Rust_Dumper\Libs\hook_lib.cpp;C:\Users\phil_\OneDrive\Desktop\Projects\Rust_Dumper\rust-dumper-main\Rust_Dumper\bin_int\hook_lib.obj
+C:\Users\phil_\OneDrive\Desktop\Projects\Rust_Dumper\rust-dumper-main\Rust_Dumper\Utils\util.cpp;C:\Users\phil_\OneDrive\Desktop\Projects\Rust_Dumper\rust-dumper-main\Rust_Dumper\bin_int\util.obj
+C:\Users\phil_\OneDrive\Desktop\Projects\Rust_Dumper\rust-dumper-main\Rust_Dumper\hde\hde64.cpp;C:\Users\phil_\OneDrive\Desktop\Projects\Rust_Dumper\rust-dumper-main\Rust_Dumper\bin_int\hde64.obj
+C:\Users\phil_\OneDrive\Desktop\Projects\Rust_Dumper\rust-dumper-main\Rust_Dumper\minhook\buffer.c;C:\Users\phil_\OneDrive\Desktop\Projects\Rust_Dumper\rust-dumper-main\Rust_Dumper\bin_int\buffer.obj
+C:\Users\phil_\OneDrive\Desktop\Projects\Rust_Dumper\rust-dumper-main\Rust_Dumper\minhook\hde\hde32.c;C:\Users\phil_\OneDrive\Desktop\Projects\Rust_Dumper\rust-dumper-main\Rust_Dumper\bin_int\hde32.obj
+C:\Users\phil_\OneDrive\Desktop\Projects\Rust_Dumper\rust-dumper-main\Rust_Dumper\minhook\hde\hde64.c;C:\Users\phil_\OneDrive\Desktop\Projects\Rust_Dumper\rust-dumper-main\Rust_Dumper\bin_int\hde64.obj
+C:\Users\phil_\OneDrive\Desktop\Projects\Rust_Dumper\rust-dumper-main\Rust_Dumper\minhook\hook.c;C:\Users\phil_\OneDrive\Desktop\Projects\Rust_Dumper\rust-dumper-main\Rust_Dumper\bin_int\hook.obj
+C:\Users\phil_\OneDrive\Desktop\Projects\Rust_Dumper\rust-dumper-main\Rust_Dumper\minhook\trampoline.c;C:\Users\phil_\OneDrive\Desktop\Projects\Rust_Dumper\rust-dumper-main\Rust_Dumper\bin_int\trampoline.obj

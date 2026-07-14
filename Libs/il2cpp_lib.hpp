@@ -223,6 +223,7 @@ namespace il2cpp {
 	CREATE_TYPE( class_from_il2cpp_type, il2cpp_class_t* ( * )( il2cpp_type_t* ) );
 	CREATE_TYPE( class_get_static_field_data, void*( * )( il2cpp_class_t* ) );
 	CREATE_TYPE( class_get_parent, il2cpp_class_t* ( * )( il2cpp_class_t* ) );
+	CREATE_TYPE( class_is_valuetype, bool( * )( il2cpp_class_t* ) );
 	CREATE_TYPE( class_get_interfaces, il2cpp_class_t* ( * )( void*, void** ) );
 	CREATE_TYPE( class_get_image, il2cpp_image_t* ( * )( void* ) );
 	CREATE_TYPE( class_get_flags, uint32_t( * )( void* ) );
@@ -471,6 +472,13 @@ namespace il2cpp {
 			return class_get_parent( this );
 		}
 
+		bool is_valuetype() {
+			if ( !is_valid_ptr( this ) || !class_is_valuetype )
+				return false;
+
+			return class_is_valuetype( this );
+		}
+
 		// All methods that take in an iterator should eventually be transformed into something like this
 		std::vector<il2cpp_class_t*> get_interfaces() {
 			std::vector<il2cpp_class_t*> ret;
@@ -515,6 +523,21 @@ namespace il2cpp {
 				return nullptr;
 
 			return class_from_il2cpp_type( ( il2cpp_type_t* )type );
+		}
+
+		il2cpp_class_t* get_generic_definition() {
+			Il2CppClass* klass = ( Il2CppClass* )this;
+			if ( !is_valid_ptr( klass ) )
+				return nullptr;
+			if ( !klass->generic_class )
+				return nullptr;
+			const char* cls_name = class_get_name( this );
+			const char* cls_ns = class_get_namespace( this );
+			il2cpp_image_t* img = class_get_image( this );
+			if ( !cls_name || !img )
+				return nullptr;
+			il2cpp_class_t* def = class_from_name( img, cls_ns ? cls_ns : "", cls_name );
+			return ( def && def != this ) ? def : nullptr;
 		}
 
 		uint16_t vtable_count() {
@@ -947,6 +970,26 @@ namespace il2cpp {
 		};
 
 		return search_for_class_in_image( assembly->image( ), search_for_class_by_method_in_assembly );
+	}
+
+	inline bool is_fake_class( il2cpp_class_t* klass ) {
+		if ( !is_valid_ptr( klass ) )
+			return false;
+
+		void* iter = nullptr;
+		uint64_t first = 0;
+		int total = 0, matches = 0;
+		while ( method_info_t* m = klass->methods( &iter ) ) {
+			uint64_t p = m->get_fn_ptr<uint64_t>();
+			if ( !p )
+				continue;
+			total++;
+			if ( !first )
+				first = p;
+			else if ( p == first )
+				matches++;
+		}
+		return total >= 3 && matches >= total - 2;
 	}
 
 	template<typename Comparator>
@@ -2268,6 +2311,7 @@ namespace il2cpp {
 		ASSIGN_TYPE( class_from_il2cpp_type );
 		ASSIGN_TYPE( class_get_static_field_data );
 		ASSIGN_TYPE( class_get_parent );
+		ASSIGN_TYPE( class_is_valuetype );
 		ASSIGN_TYPE( class_get_interfaces );
 		ASSIGN_TYPE( class_get_image );
 		ASSIGN_TYPE( class_get_flags );

@@ -259,7 +259,8 @@ void dump_fn_to_file(const char *label, uint8_t *address);
   DUMP_MEMBER_BY_X(NAME, DUMPER_RVA(uint64_t(dumper::relative_32(              \
                              FIND_PATTERN(base, 0x1000, sig), off))))
 #define DUMP_METHOD_BY_INFO_PTR(NAME, ptr)                                     \
-  DUMP_MEMBER_BY_X(NAME, DUMPER_RVA(ptr->get_fn_ptr<uint64_t>()))
+  DUMP_MEMBER_BY_X(NAME,                                                       \
+                   (ptr) ? DUMPER_RVA((ptr)->get_fn_ptr<uint64_t>()) : 0ULL)
 #define DUMP_METHOD_BY_PARAM_CLASS(NAME, filter, param_class, param_ct,        \
                                    wanted_vis, wanted_flags)                   \
   DUMP_MEMBER_BY_X(NAME, DUMPER_RVA(il2cpp::get_method_by_param_class(         \

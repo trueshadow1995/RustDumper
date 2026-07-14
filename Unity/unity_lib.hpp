@@ -165,6 +165,26 @@ public:
     return (uint64_t)seh_call_add(add_component_f, this, type_obj);
   }
 
+  static uint64_t seh_call_getcomp(uint64_t (*fn)(uintptr_t,
+                                                  il2cpp::il2cpp_object_t *),
+                                   uintptr_t h,
+                                   il2cpp::il2cpp_object_t *t) {
+    __try { return fn(h, t); }
+    __except (EXCEPTION_EXECUTE_HANDLER) { return 0; }
+  }
+
+  uint64_t get_component(il2cpp::il2cpp_type_t *type) {
+    static auto get_injected_f =
+        (uint64_t (*)(uintptr_t, il2cpp::il2cpp_object_t *))il2cpp::resolve_icall(
+            "UnityEngine.GameObject::GetComponent_Injected(System.IntPtr,"
+            "System.Type)");
+    if (!get_injected_f) return 0;
+    uintptr_t h = native_handle();
+    if (!h) return 0;
+    il2cpp::il2cpp_object_t *type_obj = il2cpp::type_get_object(type);
+    return seh_call_getcomp(get_injected_f, h, type_obj);
+  }
+
   uintptr_t native_handle() const { return unity_native_handle(this); }
 
 
